@@ -1,0 +1,15 @@
+# Sitemap and Robots Configuration
+
+# public/robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://asepjumadi.com/sitemap.xml
+
+# Security headers (untuk nginx/apache config)
+# X-Content-Type-Options: nosniff
+# X-Frame-Options: DENY
+# X-XSS-Protection: 1; mode=block
+# Referrer-Policy: strict-origin-when-cross-origin

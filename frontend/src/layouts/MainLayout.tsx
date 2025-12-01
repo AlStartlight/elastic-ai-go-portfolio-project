@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,6 +70,7 @@ const MainLayout: React.FC = () => {
       <main className="pt-16">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 };

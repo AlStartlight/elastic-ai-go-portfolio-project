@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ArticleSection from '../components/ArticleSection';
+import SEO from '../components/SEO';
 import { Article, NewsletterSubscription } from '../types/article';
 
 const Home: React.FC = () => {
@@ -20,8 +21,15 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="container mx-auto px-4 py-16 max-w-7xl">
+    <>
+      <SEO 
+        title="Asep Jumadi - Full Stack Developer | React & Go Specialist"
+        description="Professional Full Stack Developer with expertise in React, TypeScript, Go, and modern web technologies. Building scalable web applications with clean code and best practices."
+        keywords="full stack developer, react developer, golang developer, typescript, nextjs, tailwind css, postgresql, web development, software engineer, asep jumadi"
+        ogType="website"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="container mx-auto px-4 py-16 max-w-7xl">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
           {/* Text Content */}
           <div className="flex-1 text-center lg:text-left">
@@ -389,6 +397,7 @@ const Home: React.FC = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 
