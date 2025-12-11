@@ -156,3 +156,5 @@ Desktop.ini
 !*.key.example
 secrets/
 .secrets/
+
+.env
