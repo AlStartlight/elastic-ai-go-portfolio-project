@@ -136,7 +136,7 @@ func (a *articleUsecase) UpdateArticle(ctx context.Context, id string, req domai
 	}
 
 	// Validate category if provided
-	if req.CategoryID != "" {
+	if req.CategoryID != "" && req.CategoryID != existingArticle.Category.ID {
 		_, err := a.categoryRepo.GetByID(ctx, req.CategoryID)
 		if err != nil {
 			return nil, domain.ErrCategoryNotFound
@@ -149,8 +149,33 @@ func (a *articleUsecase) UpdateArticle(ctx context.Context, id string, req domai
 		return nil, fmt.Errorf("failed to update article: %w", err)
 	}
 
-	// Return updated article
-	return a.articleRepo.GetByID(ctx, id)
+	// Apply updates to existing article object to avoid additional query
+	if req.Title != "" {
+		existingArticle.Title = req.Title
+		existingArticle.GenerateSlug()
+	}
+	if req.Excerpt != "" {
+		existingArticle.Excerpt = req.Excerpt
+	}
+	if req.Content != "" {
+		existingArticle.Content = req.Content
+		existingArticle.CalculateReadTime()
+	}
+	if req.CategoryID != "" {
+		existingArticle.Category.ID = req.CategoryID
+	}
+	if req.Tags != nil {
+		existingArticle.Tags = req.Tags
+	}
+	if req.Featured != nil {
+		existingArticle.Featured = *req.Featured
+	}
+	if req.Published != nil {
+		existingArticle.Published = *req.Published
+	}
+	existingArticle.UpdatedAt = time.Now()
+
+	return existingArticle, nil
 }
 
 func (a *articleUsecase) DeleteArticle(ctx context.Context, id string) error {

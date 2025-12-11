@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"portfolio/internal/delivery/http"
+	handler "portfolio/internal/delivery/http"
 	"portfolio/internal/infrastructure/config"
 	"portfolio/internal/infrastructure/db"
 	"portfolio/internal/infrastructure/logger"
@@ -55,7 +55,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := http.NewRouter(userUseCase, projectUseCase, localeUseCase, zapLogger)
+	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, zapLogger)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,
