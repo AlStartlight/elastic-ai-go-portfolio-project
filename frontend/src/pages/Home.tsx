@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import ArticleSection from '../components/ArticleSection';
 import SEO from '../components/SEO';
 import { Article, NewsletterSubscription } from '../types/article';
+import { useHomepageContent, useTechStacks } from '../hooks/useHomepage';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const { content: heroContent, loading: heroLoading, error: heroError } = useHomepageContent('hero');
+  const { stacks, loading: stacksLoading, error: stacksError } = useTechStacks();
 
   // Article handlers
   const handleArticleClick = (article: Article) => {
@@ -20,70 +23,134 @@ const Home: React.FC = () => {
     // await subscribeToNewsletter(data.email);
   };
 
+  if (heroLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (heroError) {
+    console.error('Error loading homepage:', heroError);
+    // Fallback to default content
+  }
+
   return (
     <>
       <SEO 
-        title="Asep Jumadi - Full Stack Developer | React & Go Specialist"
-        description="Professional Full Stack Developer with expertise in React, TypeScript, Go, and modern web technologies. Building scalable web applications with clean code and best practices."
+        title={heroContent?.title ? heroContent.title.replace('\n', ' ') : "Asep Jumadi - Full Stack Developer"}
+        description={heroContent?.description || t('description')}
         keywords="full stack developer, react developer, golang developer, typescript, nextjs, tailwind css, postgresql, web development, software engineer, asep jumadi"
         ogType="website"
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <div className="container mx-auto px-4 py-16 max-w-7xl">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Text Content */}
+          {/* Dynamic Text Content */}
           <div className="flex-1 text-center lg:text-left">
             <div className="space-y-4">
               <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
-                <span className="text-white block">FULL STACK</span>
-                <span className="text-green-500 block">DEVELOPER</span>
+                {heroContent?.title ? (
+                  heroContent.title.split('\n').map((line, i) => (
+                    <span 
+                      key={i} 
+                      className={i === 0 ? "text-white block" : "text-green-500 block"}
+                    >
+                      {line}
+                    </span>
+                  ))
+                ) : (
+                  <>
+                    <span className="text-white block">FULL STACK</span>
+                    <span className="text-green-500 block">DEVELOPER</span>
+                  </>
+                )}
               </h1>
               <p className="text-gray-300 text-lg md:text-xl max-w-2xl mt-6">
-                {t('description')}
+                {heroContent?.description || t('description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-8">
-                <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
-                  {t('view_project')}
-                </button>
-                <button className="border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300">
-                  {t('download_cv')}
-                </button>
+                {heroContent?.ctaPrimaryText && (
+                  <button 
+                    onClick={() => window.location.href = heroContent.ctaPrimaryLink}
+                    className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    {heroContent.ctaPrimaryText}
+                  </button>
+                )}
+                {!heroContent?.ctaPrimaryText && (
+                  <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105">
+                    {t('view_project')}
+                  </button>
+                )}
+                {heroContent?.ctaSecondaryText && (
+                  <button 
+                    onClick={() => window.location.href = heroContent.ctaSecondaryLink}
+                    className="border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
+                  >
+                    {heroContent.ctaSecondaryText}
+                  </button>
+                )}
+                {!heroContent?.ctaSecondaryText && (
+                  <button className="border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300">
+                    {t('download_cv')}
+                  </button>
+                )}
               </div>
             </div>
           </div>
           
-          {/* Image Content */}
+          {/* Dynamic Image Content */}
           <div className="flex-1 flex justify-center lg:justify-end">
             <div className="relative">
               <div className="absolute inset-0 bg-green-500/20 rounded-full blur-3xl"></div>
               <img 
-                src="sabas.png" 
-                alt="Full Stack Developer" 
+                src={heroContent?.imageUrl || "sabas.png"} 
+                alt={heroContent?.title || "Full Stack Developer"} 
                 className="relative z-10 w-80 h-80 md:w-96 md:h-96 lg:w-[500px] lg:h-[500px] object-cover rounded-full shadow-2xl border-4 border-green-500/50"
               />
             </div>
           </div>
         </div>
 
-        {/* Additional Section */}
+        {/* Dynamic Tech Stacks Section */}
         <div className="mt-20 text-center">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
-              <h3 className="text-green-500 font-bold text-xl mb-2">Mobile</h3>
-              <p className="text-gray-300">React Native, Kotlin Multi Platform, SwiftUI</p>
-            </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
-              <h3 className="text-green-500 font-bold text-xl mb-2">Frontend</h3>
-              <p className="text-gray-300">Nextjs, React, TypeScript, Tailwind CSS</p>
-            </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
-              <h3 className="text-green-500 font-bold text-xl mb-2">Backend</h3>
-              <p className="text-gray-300">Laravel, Go, Node.js, PostgreSQL, MySQL</p>
-            </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
-              <h3 className="text-green-500 font-bold text-xl mb-2">DevOps</h3>
-              <p className="text-gray-300">Docker, AWS, CI/CD</p>
-            </div>
+            {!stacksLoading && stacks.length > 0 ? (
+              stacks.map((stack) => (
+                <div 
+                  key={stack.id}
+                  className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700"
+                >
+                  <h3 className="text-green-500 font-bold text-xl mb-2">
+                    {stack.icon && <span className="mr-2">{stack.icon}</span>}
+                    {stack.title}
+                  </h3>
+                  <p className="text-gray-300">{stack.description}</p>
+                </div>
+              ))
+            ) : (
+              // Fallback to default content if no dynamic stacks
+              <>
+                <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
+                  <h3 className="text-green-500 font-bold text-xl mb-2">Mobile</h3>
+                  <p className="text-gray-300">React Native, Kotlin Multi Platform, SwiftUI</p>
+                </div>
+                <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
+                  <h3 className="text-green-500 font-bold text-xl mb-2">Frontend</h3>
+                  <p className="text-gray-300">Nextjs, React, TypeScript, Tailwind CSS</p>
+                </div>
+                <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
+                  <h3 className="text-green-500 font-bold text-xl mb-2">Backend</h3>
+                  <p className="text-gray-300">Laravel, Go, Node.js, PostgreSQL, MySQL</p>
+                </div>
+                <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm border border-gray-700">
+                  <h3 className="text-green-500 font-bold text-xl mb-2">DevOps</h3>
+                  <p className="text-gray-300">Docker, AWS, CI/CD</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
         

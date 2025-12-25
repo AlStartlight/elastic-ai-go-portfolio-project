@@ -42,20 +42,25 @@ func main() {
 
 	// Initialize repositories
 	userRepo := repository.NewUserPostgresRepository(database)
-	projectRepo := repository.NewProjectPostgresRepository(database)
+	projectRepo := repository.NewProjectPostgresRepository(database.DB)
 	localeRepo := repository.NewLocaleFileSystemRepository()
+	homepageRepo := repository.NewHomepageRepository(database.DB)
 
 	// Initialize use cases
 	userUseCase := usecase.NewUserUseCase(userRepo, zapLogger)
-	projectUseCase := usecase.NewProjectUseCase(projectRepo, zapLogger)
+	projectUseCase := usecase.NewProjectUseCase(projectRepo)
 	localeUseCase := usecase.NewLocaleUseCase(localeRepo, zapLogger)
+	homepageUseCase := usecase.NewHomepageUsecase(homepageRepo)
+
+	// Initialize handlers
+	homepageHandler := handler.NewHomepageHandler(homepageUseCase)
 
 	// Initialize HTTP server
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, zapLogger)
+	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, zapLogger, database.DB)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,

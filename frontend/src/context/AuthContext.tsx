@@ -49,10 +49,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (newToken: string, newUser: User) => {
+    console.log('AuthContext: login called', { newToken, newUser });
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
+    console.log('AuthContext: login complete, isAuthenticated should be true');
   };
 
   const logout = () => {
@@ -70,6 +72,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!token && !!user,
     isLoading,
   };
+
+  console.log('AuthContext value:', { 
+    hasUser: !!user, 
+    hasToken: !!token, 
+    isAuthenticated: !!token && !!user,
+    isLoading 
+  });
 
   return (
     <AuthContext.Provider value={value}>

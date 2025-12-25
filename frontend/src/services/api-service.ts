@@ -405,3 +405,186 @@ Modern React development focuses on...
   tags: ["React", "TypeScript", "Frontend"]
 };
 */
+
+// ============ HOMEPAGE API ============
+export interface HomepageContent {
+  id: string;
+  section: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  imageUrl: string;
+  ctaPrimaryText: string;
+  ctaPrimaryLink: string;
+  ctaSecondaryText: string;
+  ctaSecondaryLink: string;
+  metadata?: Record<string, any>;
+  isActive: boolean;
+}
+
+export interface TechStack {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+export const homepageApi = {
+  getContentBySection: async (section: string): Promise<HomepageContent> => {
+    const response = await fetch(`${API_BASE_URL}/public/homepage/${section}`);
+    if (!response.ok) throw new Error('Failed to fetch homepage content');
+    return response.json();
+  },
+  
+  getTechStacks: async (): Promise<TechStack[]> => {
+    const response = await fetch(`${API_BASE_URL}/public/tech-stacks`);
+    if (!response.ok) throw new Error('Failed to fetch tech stacks');
+    return response.json();
+  },
+  
+  // Admin endpoints
+  updateContent: async (content: Partial<HomepageContent>): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/homepage`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(content),
+    });
+    if (!response.ok) throw new Error('Failed to update homepage content');
+  },
+  
+  createTechStack: async (stack: Omit<TechStack, 'id'>): Promise<TechStack> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/tech-stacks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(stack),
+    });
+    if (!response.ok) throw new Error('Failed to create tech stack');
+    return response.json();
+  },
+  
+  updateTechStack: async (id: string, stack: Partial<TechStack>): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/tech-stacks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(stack),
+    });
+    if (!response.ok) throw new Error('Failed to update tech stack');
+  },
+  
+  deleteTechStack: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/tech-stacks/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error('Failed to delete tech stack');
+  },
+};
+
+// ============ PROJECTS API ============
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  shortDescription: string;
+  thumbnailUrl: string;
+  projectUrl?: string;
+  githubUrl?: string;
+  technologies: string[];
+  category: string;
+  featured: boolean;
+  status: 'draft' | 'published' | 'archived';
+  startedAt?: string;
+  completedAt?: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProjectRequest {
+  title: string;
+  description: string;
+  shortDescription: string;
+  thumbnailUrl: string;
+  projectUrl?: string;
+  githubUrl?: string;
+  technologies: string[];
+  category: string;
+  featured: boolean;
+  status?: 'draft' | 'published' | 'archived';
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface UpdateProjectRequest extends Partial<CreateProjectRequest> {}
+
+export const projectsApi = {
+  getAll: async (): Promise<Project[]> => {
+    const response = await fetch(`${API_BASE_URL}/public/projects`);
+    if (!response.ok) throw new Error('Failed to fetch projects');
+    return response.json();
+  },
+  
+  getBySlug: async (slug: string): Promise<Project> => {
+    const response = await fetch(`${API_BASE_URL}/public/projects/${slug}`);
+    if (!response.ok) throw new Error('Failed to fetch project');
+    return response.json();
+  },
+  
+  // Admin endpoints
+  create: async (data: CreateProjectRequest): Promise<Project> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/projects`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to create project');
+    return response.json();
+  },
+  
+  update: async (id: string, data: UpdateProjectRequest): Promise<Project> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/projects/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update project');
+    return response.json();
+  },
+  
+  delete: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/projects/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error('Failed to delete project');
+  },
+};

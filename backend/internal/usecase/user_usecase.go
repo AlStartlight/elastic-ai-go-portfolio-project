@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -145,13 +146,13 @@ func (uc *UserUseCase) generateJWT(user *user.User) (string, time.Time, error) {
 	expiresAt := time.Now().Add(24 * time.Hour) // Token expires in 24 hours
 
 	claims := &utils.JWTClaims{
-		UserID: user.ID,
+		UserID: fmt.Sprintf("%d", user.ID),
 		Email:  user.Email,
 		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   string(rune(user.ID)),
+			Subject:   fmt.Sprintf("%d", user.ID),
 		},
 	}
 

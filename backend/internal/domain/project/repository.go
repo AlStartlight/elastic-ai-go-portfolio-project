@@ -8,22 +8,19 @@ import (
 type Repository interface {
 	// Create creates a new project
 	Create(ctx context.Context, project *Project) error
-	
+
 	// GetByID retrieves a project by ID
-	GetByID(ctx context.Context, id uint) (*Project, error)
-	
+	GetByID(ctx context.Context, id string) (*Project, error)
+
+	// GetBySlug retrieves a project by slug
+	GetBySlug(ctx context.Context, slug string) (*Project, error)
+
 	// Update updates a project
-	Update(ctx context.Context, id uint, updates UpdateProjectRequest) error
-	
+	Update(ctx context.Context, id string, updates UpdateProjectRequest) error
+
 	// Delete deletes a project
-	Delete(ctx context.Context, id uint) error
-	
-	// List retrieves all projects with pagination and filtering
-	List(ctx context.Context, limit, offset int, activeOnly bool) ([]*Project, error)
-	
-	// Count returns the total number of projects
-	Count(ctx context.Context, activeOnly bool) (int64, error)
-	
-	// ReorderProjects updates the order of projects
-	ReorderProjects(ctx context.Context, projectOrders map[uint]int) error
+	Delete(ctx context.Context, id string) error
+
+	// GetAll retrieves all projects with optional filters
+	GetAll(ctx context.Context, filters map[string]interface{}) ([]*Project, error)
 }

@@ -1,7 +1,16 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout: React.FC = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login', { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -11,7 +20,8 @@ const AdminLayout: React.FC = () => {
             <div className="flex gap-4">
               <a href="/admin/dashboard" className="hover:text-primary">Dashboard</a>
               <a href="/admin/projects" className="hover:text-primary">Projects</a>
-              <button className="btn-outline px-4 py-2">Logout</button>
+              <a href="/admin/change-password" className="hover:text-primary">Ganti Password</a>
+              <button onClick={handleLogout} className="btn-outline px-4 py-2">Logout</button>
             </div>
           </div>
         </div>

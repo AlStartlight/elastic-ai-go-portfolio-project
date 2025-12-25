@@ -5,6 +5,8 @@ import About from '../pages/About';
 import AdminLogin from '../pages/Admin/Login';
 import Dashboard from '../pages/Admin/Dashboard';
 import ManageProjects from '../pages/Admin/ManageProjects';
+import ManageHomepage from '../pages/Admin/ManageHomepage';
+import ChangePassword from '../pages/Admin/ChangePassword';
 import NotFound from '../pages/NotFound';
 import MainLayout from '../layouts/MainLayout';
 import AdminLayout from '../layouts/AdminLayout';
@@ -34,7 +36,9 @@ const Router = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="homepage" element={<ManageHomepage />} />
         <Route path="projects" element={<ManageProjects />} />
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
 
       {/* 404 Route */}
