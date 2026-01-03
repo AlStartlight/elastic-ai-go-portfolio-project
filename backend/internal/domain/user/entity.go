@@ -6,22 +6,24 @@ import (
 
 // User represents a user entity
 type User struct {
-	ID        uint      `json:"id" db:"id"`
-	Email     string    `json:"email" db:"email" binding:"required,email"`
-	Password  string    `json:"-" db:"password" binding:"required,min=6"`
-	Name      string    `json:"name" db:"name" binding:"required"`
-	Role      string    `json:"role" db:"role"`
-	IsActive  bool      `json:"is_active" db:"is_active"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID           string    `json:"id" db:"id"`
+	Email        string    `json:"email" db:"email" binding:"required,email"`
+	PasswordHash string    `json:"-" db:"password_hash" binding:"required,min=6"`
+	Name         string    `json:"name" db:"name" binding:"required"`
+	Role         string    `json:"role" db:"role"`
+	UserType     string    `json:"user_type" db:"user_type"` // admin or customer
+	IsActive     bool      `json:"is_active" db:"is_active"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // UserProfile represents user profile response
 type UserProfile struct {
-	ID       uint   `json:"id"`
+	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 	Role     string `json:"role"`
+	UserType string `json:"user_type"`
 	IsActive bool   `json:"is_active"`
 }
 
@@ -44,6 +46,14 @@ type CreateUserRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	Name     string `json:"name" binding:"required"`
 	Role     string `json:"role"`
+	UserType string `json:"user_type"` // admin or customer
+}
+
+// RegisterRequest represents customer registration request
+type RegisterRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	Name     string `json:"name" binding:"required"`
 }
 
 // UpdateUserRequest represents update user request payload
@@ -54,6 +64,12 @@ type UpdateUserRequest struct {
 	IsActive *bool  `json:"is_active,omitempty"`
 }
 
+// ChangePasswordRequest represents change password request payload
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=6"`
+}
+
 // ToProfile converts User to UserProfile
 func (u *User) ToProfile() UserProfile {
 	return UserProfile{
@@ -61,6 +77,7 @@ func (u *User) ToProfile() UserProfile {
 		Email:    u.Email,
 		Name:     u.Name,
 		Role:     u.Role,
+		UserType: u.UserType,
 		IsActive: u.IsActive,
 	}
 }

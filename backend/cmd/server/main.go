@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 
 	handler "portfolio/internal/delivery/http"
+	"portfolio/internal/infrastructure/cloudinary"
 	"portfolio/internal/infrastructure/config"
 	"portfolio/internal/infrastructure/db"
 	"portfolio/internal/infrastructure/logger"
@@ -45,22 +46,32 @@ func main() {
 	projectRepo := repository.NewProjectPostgresRepository(database.DB)
 	localeRepo := repository.NewLocaleFileSystemRepository()
 	homepageRepo := repository.NewHomepageRepository(database.DB)
+	courseRepo := repository.NewCoursePgRepository(database)
 
 	// Initialize use cases
 	userUseCase := usecase.NewUserUseCase(userRepo, zapLogger)
 	projectUseCase := usecase.NewProjectUseCase(projectRepo)
 	localeUseCase := usecase.NewLocaleUseCase(localeRepo, zapLogger)
 	homepageUseCase := usecase.NewHomepageUsecase(homepageRepo)
+	courseUseCase := usecase.NewCourseUsecase(courseRepo)
+
+	// Initialize Cloudinary client
+	cloudinaryClient, err := cloudinary.NewCloudinaryClient()
+	if err != nil {
+		zapLogger.Warn("Cloudinary not configured, thumbnail uploads will fail: " + err.Error())
+		// Continue without Cloudinary - uploads will fail but app will still work
+	}
 
 	// Initialize handlers
 	homepageHandler := handler.NewHomepageHandler(homepageUseCase)
+	courseHandler := handler.NewCourseHandler(courseUseCase, cloudinaryClient)
 
 	// Initialize HTTP server
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, zapLogger, database.DB)
+	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, courseHandler, zapLogger, database.DB)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,

@@ -25,12 +25,12 @@ func NewUserPostgresRepository(db *sqlx.DB) user.Repository {
 // Create creates a new user
 func (r *UserPostgresRepository) Create(ctx context.Context, user *user.User) error {
 	query := `
-		INSERT INTO users (email, password, name, role, is_active, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO users (email, password_hash, name, role, user_type, is_active, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id`
 
 	err := r.db.QueryRowxContext(ctx, query,
-		user.Email, user.Password, user.Name, user.Role,
+		user.Email, user.PasswordHash, user.Name, user.Role, user.UserType,
 		user.IsActive, user.CreatedAt, user.UpdatedAt,
 	).Scan(&user.ID)
 
@@ -38,10 +38,10 @@ func (r *UserPostgresRepository) Create(ctx context.Context, user *user.User) er
 }
 
 // GetByID retrieves a user by ID
-func (r *UserPostgresRepository) GetByID(ctx context.Context, id uint) (*user.User, error) {
+func (r *UserPostgresRepository) GetByID(ctx context.Context, id string) (*user.User, error) {
 	var u user.User
 	query := `
-		SELECT id, email, password, name, role, is_active, created_at, updated_at
+		SELECT id, email, password_hash, name, role, user_type, is_active, created_at, updated_at
 		FROM users
 		WHERE id = $1`
 
@@ -60,7 +60,7 @@ func (r *UserPostgresRepository) GetByID(ctx context.Context, id uint) (*user.Us
 func (r *UserPostgresRepository) GetByEmail(ctx context.Context, email string) (*user.User, error) {
 	var u user.User
 	query := `
-		SELECT id, email, password, name, role, is_active, created_at, updated_at
+		SELECT id, email, password_hash, name, role, user_type, is_active, created_at, updated_at
 		FROM users
 		WHERE email = $1`
 
@@ -76,7 +76,7 @@ func (r *UserPostgresRepository) GetByEmail(ctx context.Context, email string) (
 }
 
 // Update updates a user
-func (r *UserPostgresRepository) Update(ctx context.Context, id uint, updates user.UpdateUserRequest) error {
+func (r *UserPostgresRepository) Update(ctx context.Context, id string, updates user.UpdateUserRequest) error {
 	setParts := []string{}
 	args := []interface{}{}
 	argIndex := 1
@@ -123,8 +123,19 @@ func (r *UserPostgresRepository) Update(ctx context.Context, id uint, updates us
 	return err
 }
 
+// UpdatePassword updates user password
+func (r *UserPostgresRepository) UpdatePassword(ctx context.Context, id string, hashedPassword string) error {
+	query := `
+		UPDATE users 
+		SET password_hash = $1, updated_at = $2 
+		WHERE id = $3`
+
+	_, err := r.db.ExecContext(ctx, query, hashedPassword, time.Now(), id)
+	return err
+}
+
 // Delete deletes a user
-func (r *UserPostgresRepository) Delete(ctx context.Context, id uint) error {
+func (r *UserPostgresRepository) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM users WHERE id = $1`
 	_, err := r.db.ExecContext(ctx, query, id)
 	return err

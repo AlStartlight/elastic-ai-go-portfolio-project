@@ -6,10 +6,11 @@ export interface LoginRequest {
 }
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: string;
+  user_type: string;
   is_active: boolean;
 }
 

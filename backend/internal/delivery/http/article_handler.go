@@ -310,6 +310,16 @@ func (h *ArticleHandler) UnsubscribeNewsletter(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GET /api/newsletter/subscribers (Admin only)
+func (h *ArticleHandler) GetSubscribers(c *gin.Context) {
+	subscribers, err := h.newsletterUsecase.GetSubscribers(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, subscribers)
+}
+
 // Analytics endpoints
 
 // POST /api/analytics/articles/:id/view
@@ -412,6 +422,7 @@ func (h *ArticleHandler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		newsletter.POST("/subscribe", h.SubscribeNewsletter)
 		newsletter.POST("/unsubscribe", h.UnsubscribeNewsletter)
+		newsletter.GET("/subscribers", h.GetSubscribers) // Admin only
 	}
 
 	analytics := r.Group("/analytics")

@@ -2,14 +2,15 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"portfolio/internal/delivery/http/middleware"
+	"portfolio/internal/domain/user"
 	"portfolio/internal/infrastructure/logger"
 	"portfolio/internal/usecase"
-	"portfolio/internal/utils"
 )
 
 // NewRouter creates and configures the HTTP router
@@ -18,6 +19,7 @@ func NewRouter(
 	projectUseCase *usecase.ProjectUseCase,
 	localeUseCase *usecase.LocaleUseCase,
 	homepageHandler *HomepageHandler,
+	courseHandler *CourseHandler,
 	logger logger.Logger,
 	db *sql.DB,
 ) *gin.Engine {
@@ -63,85 +65,81 @@ func NewRouter(
 			public.GET("/articles/:slug", func(c *gin.Context) {
 				c.JSON(200, gin.H{"message": "article detail endpoint"})
 			})
+
+			// Course routes (public)
+			public.GET("/courses", courseHandler.GetCourses)
+			public.GET("/courses/:slug", courseHandler.GetCourse)
 		}
 
 		// Auth routes
 		auth := api.Group("/auth")
 		{
-			auth.POST("/login", func(c *gin.Context) {
-				var req struct {
-					Email    string `json:"email" binding:"required,email"`
-					Password string `json:"password" binding:"required"`
-				}
-
+			// Customer register
+			auth.POST("/register", func(c *gin.Context) {
+				var req user.RegisterRequest
 				if err := c.ShouldBindJSON(&req); err != nil {
 					c.JSON(400, gin.H{"error": "Invalid request format"})
 					return
 				}
 
-				// Query user from database
-				var user struct {
-					ID           string
-					Email        string
-					PasswordHash string
-					Name         string
-					Role         string
-					IsActive     bool
-				}
-
-				query := `SELECT id, email, password_hash, name, role, is_active FROM users WHERE email = $1`
-				err := db.QueryRow(query, req.Email).Scan(
-					&user.ID,
-					&user.Email,
-					&user.PasswordHash,
-					&user.Name,
-					&user.Role,
-					&user.IsActive,
-				)
-
-				if err == sql.ErrNoRows {
-					c.JSON(401, gin.H{"error": "Invalid email or password"})
-					return
-				} else if err != nil {
-					logger.Error("Database error during login", err)
-					c.JSON(500, gin.H{"error": "Internal server error"})
-					return
-				}
-
-				// Check if user is active
-				if !user.IsActive {
-					c.JSON(401, gin.H{"error": "Account is disabled"})
-					return
-				}
-
-				// Verify password
-				if !utils.CheckPasswordHash(req.Password, user.PasswordHash) {
-					c.JSON(401, gin.H{"error": "Invalid email or password"})
-					return
-				}
-
-				// Generate JWT token
-				token, err := utils.GenerateToken(user.ID, user.Email, user.Role)
+				response, err := userUseCase.Register(c.Request.Context(), req)
 				if err != nil {
-					logger.Error("Failed to generate token", err)
-					c.JSON(500, gin.H{"error": "Failed to generate authentication token"})
+					c.JSON(400, gin.H{"error": err.Error()})
 					return
 				}
 
-				// Return success response
-				c.JSON(200, gin.H{
-					"token": token,
-					"user": gin.H{
-						"id":    user.ID,
-						"email": user.Email,
-						"name":  user.Name,
-						"role":  user.Role,
-					},
-					"message": "Login successful",
-				})
+				c.JSON(200, response)
 			})
-			auth.POST("/register", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "register endpoint"})
+
+			// Customer login
+			auth.POST("/customer/login", func(c *gin.Context) {
+				var req user.LoginRequest
+				if err := c.ShouldBindJSON(&req); err != nil {
+					c.JSON(400, gin.H{"error": "Invalid request format"})
+					return
+				}
+
+				response, err := userUseCase.CustomerLogin(c.Request.Context(), req)
+				if err != nil {
+					c.JSON(401, gin.H{"error": err.Error()})
+					return
+				}
+
+				c.JSON(200, response)
+			})
+
+			// Admin login
+			auth.POST("/admin/login", func(c *gin.Context) {
+				var req user.LoginRequest
+				if err := c.ShouldBindJSON(&req); err != nil {
+					c.JSON(400, gin.H{"error": "Invalid request format"})
+					return
+				}
+
+				response, err := userUseCase.AdminLogin(c.Request.Context(), req)
+				if err != nil {
+					c.JSON(401, gin.H{"error": err.Error()})
+					return
+				}
+
+				c.JSON(200, response)
+			})
+
+			// Legacy login endpoint (for backward compatibility)
+			auth.POST("/login", func(c *gin.Context) {
+				var req user.LoginRequest
+				if err := c.ShouldBindJSON(&req); err != nil {
+					c.JSON(400, gin.H{"error": "Invalid request format"})
+					return
+				}
+
+				response, err := userUseCase.Login(c.Request.Context(), req)
+				if err != nil {
+					c.JSON(401, gin.H{"error": err.Error()})
+					return
+				}
+
+				c.JSON(200, response)
 			})
 		}
 
@@ -157,23 +155,42 @@ func NewRouter(
 				}
 
 				if err := c.ShouldBindJSON(&req); err != nil {
-					c.JSON(400, gin.H{"error": "Invalid request"})
+					logger.Error("Failed to bind JSON for change password", err)
+					c.JSON(400, gin.H{"error": "Invalid request: " + err.Error()})
 					return
 				}
 
 				// Get user ID from JWT context
-				userID, exists := c.Get("user_id")
+				userIDStr, exists := c.Get("user_id")
 				if !exists {
+					logger.Error("User ID not found in JWT context", nil)
 					c.JSON(401, gin.H{"error": "Unauthorized"})
 					return
 				}
 
-				// TODO: Implement password change logic via usecase
-				// For now, return success
-				_ = userID
-				_ = req.CurrentPassword
-				_ = req.NewPassword
+				// Convert to string
+				userID, ok := userIDStr.(string)
+				if !ok {
+					logger.Error("Failed to convert user ID to string", nil)
+					c.JSON(400, gin.H{"error": "Invalid user ID"})
+					return
+				}
 
+				logger.Info(fmt.Sprintf("Attempting to change password for user ID: %s", userID))
+
+				// Call usecase to change password
+				changePasswordReq := user.ChangePasswordRequest{
+					CurrentPassword: req.CurrentPassword,
+					NewPassword:     req.NewPassword,
+				}
+
+				if err := userUseCase.ChangePassword(c.Request.Context(), userID, changePasswordReq); err != nil {
+					logger.Error("Failed to change password", err)
+					c.JSON(400, gin.H{"error": err.Error()})
+					return
+				}
+
+				logger.Info(fmt.Sprintf("Password changed successfully for user ID: %s", userID))
 				c.JSON(200, gin.H{"message": "Password changed successfully"})
 			})
 
@@ -204,6 +221,40 @@ func NewRouter(
 			admin.DELETE("/articles/:id", func(c *gin.Context) {
 				c.JSON(200, gin.H{"message": "delete article endpoint"})
 			})
+
+			// Course management (admin)
+			admin.GET("/courses", courseHandler.GetAllCourses)     // Get all courses including drafts
+			admin.GET("/courses/:id", courseHandler.GetCourseByID) // Get course by ID
+			admin.POST("/courses", courseHandler.CreateCourse)
+			admin.PUT("/courses/:id", courseHandler.UpdateCourse)
+			admin.DELETE("/courses/:id", courseHandler.DeleteCourse)
+			admin.GET("/courses/:id/curriculum", courseHandler.GetCourseCurriculum)
+
+			// Section management
+			admin.POST("/sections", courseHandler.CreateSection)
+			admin.DELETE("/sections/:id", courseHandler.DeleteSection)
+
+			// Lesson management
+			admin.POST("/lessons", courseHandler.CreateLesson)
+			admin.DELETE("/lessons/:id", courseHandler.DeleteLesson)
+
+			// File uploads
+			admin.POST("/upload/video", courseHandler.UploadVideo)
+			admin.POST("/upload/thumbnail", courseHandler.UploadThumbnail)
+			admin.GET("/upload/thumbnails", courseHandler.ListThumbnails)
+		}
+
+		// Student endpoints (protected with JWT)
+		student := api.Group("/student")
+		student.Use(middleware.JWTAuthMiddleware())
+		{
+			// Enrollment
+			student.POST("/courses/:id/enroll", courseHandler.EnrollCourse)
+			student.GET("/enrollments", courseHandler.GetMyEnrollments)
+
+			// Progress tracking
+			student.POST("/lessons/:id/complete", courseHandler.MarkLessonComplete)
+			student.GET("/courses/:id/progress", courseHandler.GetCourseProgress)
 		}
 
 		// Legacy v1 routes (keep for backward compatibility)

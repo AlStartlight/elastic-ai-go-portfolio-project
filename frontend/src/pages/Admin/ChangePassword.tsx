@@ -47,7 +47,8 @@ const ChangePassword: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/admin/change-password', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiUrl}/api/admin/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -59,22 +60,24 @@ const ChangePassword: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Password berhasil diubah! Silakan login kembali dengan password baru.');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          localStorage.removeItem('token');
-          navigate('/admin/login');
-        }, 2000);
-      } else {
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({ error: 'Gagal mengubah password' }));
         setError(data.error || 'Gagal mengubah password');
+        return;
       }
+
+      const data = await response.json();
+      
+      setSuccess('Password berhasil diubah! Silakan login kembali dengan password baru.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        localStorage.removeItem('token');
+        navigate('/admin/login');
+      }, 2000);
     } catch (err) {
       setError('Terjadi kesalahan. Silakan coba lagi.');
       console.error('Change password error:', err);

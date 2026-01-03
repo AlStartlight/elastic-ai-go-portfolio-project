@@ -23,7 +23,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,13 +133,6 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800 text-center">
-            <strong>Default Credentials:</strong><br />
-            Email: admin@portfolio.com<br />
-            Password: admin123
-          </p>
-        </div>
       </div>
     </div>
   );

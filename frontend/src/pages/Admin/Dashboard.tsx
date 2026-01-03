@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link 
             to="/admin/homepage" 
             className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-between group"
@@ -33,6 +33,58 @@ const Dashboard: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold">Manage Projects</h3>
               <p className="text-sm text-purple-100">Add, edit, or delete projects</p>
+            </div>
+            <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          <Link 
+            to="/admin/articles" 
+            className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-between group"
+          >
+            <div>
+              <h3 className="text-lg font-semibold">My Key Notes</h3>
+              <p className="text-sm text-green-100">Manage featured articles</p>
+            </div>
+            <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          <Link 
+            to="/admin/about" 
+            className="p-6 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-between group"
+          >
+            <div>
+              <h3 className="text-lg font-semibold">About Me</h3>
+              <p className="text-sm text-indigo-100">Update your bio & info</p>
+            </div>
+            <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          <Link 
+            to="/admin/newsletter" 
+            className="p-6 bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-between group"
+          >
+            <div>
+              <h3 className="text-lg font-semibold">Newsletter</h3>
+              <p className="text-sm text-pink-100">View subscribers</p>
+            </div>
+            <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+
+          <Link 
+            to="/admin/courses" 
+            className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-between group"
+          >
+            <div>
+              <h3 className="text-lg font-semibold">Online Courses</h3>
+              <p className="text-sm text-orange-100">Manage courses & lessons</p>
             </div>
             <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
