@@ -62,7 +62,7 @@ const CustomerRegister: React.FC = () => {
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        login(data.user);
+        login(data.token, data.user);
         navigate('/courses');
       }
     } catch (err: any) {

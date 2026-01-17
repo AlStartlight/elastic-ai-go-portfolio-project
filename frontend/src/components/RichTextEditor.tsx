@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { lowlight } from 'lowlight';
+import { common, createLowlight } from 'lowlight';
 import {
   Bold,
   Italic,
@@ -20,7 +20,7 @@ import {
   Redo,
   Link as LinkIcon,
   Image as ImageIcon,
-  CodeSquare,
+  Code2,
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -34,6 +34,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = 'Start writing your content...',
 }) => {
+  const lowlight = createLowlight(common);
+  
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -211,7 +213,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           active={editor.isActive('codeBlock')}
           title="Code Block"
         >
-          <CodeSquare size={18} />
+          <Code2 size={18} />
         </MenuButton>
 
         <div className="w-px h-8 bg-gray-300 mx-1" />

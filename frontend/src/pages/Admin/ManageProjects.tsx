@@ -247,14 +247,14 @@ const ManageProjects: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-12">Loading...</div>
-      ) : projects.length === 0 ? (
+      ) : !projects || projects.length === 0 ? (
         <div className="bg-white shadow-md rounded-lg p-12 text-center">
           <p className="text-gray-500 text-lg mb-4">{t('no_projects') || 'No projects yet.'}</p>
           <p className="text-gray-400">Create your first project to get started!</p>
         </div>
       ) : (
         <div className="grid gap-6">
-          {projects.map((project) => (
+          {Array.isArray(projects) && projects.map((project) => (
             <div key={project.id} className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
               <div className="flex justify-between items-start">
                 <div className="flex-1">

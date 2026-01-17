@@ -65,13 +65,14 @@ func main() {
 	// Initialize handlers
 	homepageHandler := handler.NewHomepageHandler(homepageUseCase)
 	courseHandler := handler.NewCourseHandler(courseUseCase, cloudinaryClient)
+	projectHandler := handler.NewProjectHandler(projectUseCase, zapLogger)
 
 	// Initialize HTTP server
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, courseHandler, zapLogger, database.DB)
+	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, courseHandler, projectHandler, zapLogger, database.DB)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,

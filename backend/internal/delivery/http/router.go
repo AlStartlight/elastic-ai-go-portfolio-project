@@ -20,6 +20,7 @@ func NewRouter(
 	localeUseCase *usecase.LocaleUseCase,
 	homepageHandler *HomepageHandler,
 	courseHandler *CourseHandler,
+	projectHandler *ProjectHandler,
 	logger logger.Logger,
 	db *sql.DB,
 ) *gin.Engine {
@@ -50,13 +51,9 @@ func NewRouter(
 			public.GET("/homepage/:section", homepageHandler.GetContentBySection)
 			public.GET("/tech-stacks", homepageHandler.GetAllTechStacks)
 
-			// Project routes (to be implemented)
-			public.GET("/projects", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "projects list endpoint"})
-			})
-			public.GET("/projects/:slug", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "project detail endpoint"})
-			})
+			// Project routes
+			public.GET("/projects", projectHandler.GetAllProjects)
+			public.GET("/projects/:slug", projectHandler.GetProjectBySlug)
 
 			// Article routes (to be implemented)
 			public.GET("/articles", func(c *gin.Context) {
@@ -200,16 +197,10 @@ func NewRouter(
 			admin.PUT("/tech-stacks/:id", homepageHandler.UpdateTechStack)
 			admin.DELETE("/tech-stacks/:id", homepageHandler.DeleteTechStack)
 
-			// Project management (to be implemented)
-			admin.POST("/projects", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "create project endpoint"})
-			})
-			admin.PUT("/projects/:id", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "update project endpoint"})
-			})
-			admin.DELETE("/projects/:id", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "delete project endpoint"})
-			})
+			// Project management
+			admin.POST("/projects", projectHandler.CreateProject)
+			admin.PUT("/projects/:id", projectHandler.UpdateProject)
+			admin.DELETE("/projects/:id", projectHandler.DeleteProject)
 
 			// Article management (to be implemented)
 			admin.POST("/articles", func(c *gin.Context) {

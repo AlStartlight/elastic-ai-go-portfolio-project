@@ -10,10 +10,12 @@ export const useProjects = () => {
     try {
       setLoading(true);
       const data = await projectsApi.getAll();
-      setProjects(data);
+      // Ensure data is an array
+      setProjects(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects');
+      setProjects([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

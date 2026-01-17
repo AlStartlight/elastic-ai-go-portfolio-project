@@ -3,13 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gosimple/slug"
-	"github.com/lib/pq"
 
 	"portfolio/internal/domain/project"
 )
@@ -25,36 +24,43 @@ func NewProjectPostgresRepository(db *sql.DB) project.Repository {
 
 // Create creates a new project
 func (r *projectPostgresRepository) Create(ctx context.Context, proj *project.Project) error {
-	// Generate UUID and slug
-	proj.ID = uuid.New().String()
+	// Generate slug
 	proj.Slug = slug.Make(proj.Title)
-	proj.CreatedAt = time.Now()
-	proj.UpdatedAt = time.Now()
 
 	// Set default status if not provided
 	if proj.Status == "" {
 		proj.Status = "published"
 	}
 
+	// Ensure technologies is initialized to empty array if nil
+	if proj.Technologies == nil {
+		proj.Technologies = []string{}
+	}
+
+	// Convert technologies to JSONB
+	techJSON, err := json.Marshal(proj.Technologies)
+	if err != nil {
+		return fmt.Errorf("failed to marshal technologies: %w", err)
+	}
+
 	query := `
 		INSERT INTO projects (
-			id, title, description, short_description, thumbnail_url, 
+			title, description, short_description, thumbnail_url, 
 			project_url, github_url, technologies, category, featured, 
-			display_order, status, started_at, completed_at, slug, 
-			created_at, updated_at
+			display_order, status, started_at, completed_at, slug
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+		VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14)
+		RETURNING id, created_at, updated_at
 	`
 
-	_, err := r.db.ExecContext(ctx, query,
-		proj.ID,
+	err = r.db.QueryRowContext(ctx, query,
 		proj.Title,
 		proj.Description,
 		proj.ShortDescription,
 		proj.ThumbnailURL,
 		proj.ProjectURL,
 		proj.GithubURL,
-		pq.Array(proj.Technologies),
+		techJSON,
 		proj.Category,
 		proj.Featured,
 		proj.DisplayOrder,
@@ -62,9 +68,7 @@ func (r *projectPostgresRepository) Create(ctx context.Context, proj *project.Pr
 		proj.StartedAt,
 		proj.CompletedAt,
 		proj.Slug,
-		proj.CreatedAt,
-		proj.UpdatedAt,
-	)
+	).Scan(&proj.ID, &proj.CreatedAt, &proj.UpdatedAt)
 
 	return err
 }
@@ -81,7 +85,7 @@ func (r *projectPostgresRepository) GetByID(ctx context.Context, id string) (*pr
 	`
 
 	var proj project.Project
-	var techArray pq.StringArray
+	var techJSON []byte
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&proj.ID,
@@ -91,7 +95,7 @@ func (r *projectPostgresRepository) GetByID(ctx context.Context, id string) (*pr
 		&proj.ThumbnailURL,
 		&proj.ProjectURL,
 		&proj.GithubURL,
-		&techArray,
+		&techJSON,
 		&proj.Category,
 		&proj.Featured,
 		&proj.DisplayOrder,
@@ -110,7 +114,13 @@ func (r *projectPostgresRepository) GetByID(ctx context.Context, id string) (*pr
 		return nil, fmt.Errorf("failed to get project: %w", err)
 	}
 
-	proj.Technologies = techArray
+	// Unmarshal technologies from JSONB
+	if len(techJSON) > 0 {
+		if err := json.Unmarshal(techJSON, &proj.Technologies); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal technologies: %w", err)
+		}
+	}
+
 	return &proj, nil
 }
 
@@ -126,7 +136,7 @@ func (r *projectPostgresRepository) GetBySlug(ctx context.Context, slugStr strin
 	`
 
 	var proj project.Project
-	var techArray pq.StringArray
+	var techJSON []byte
 
 	err := r.db.QueryRowContext(ctx, query, slugStr).Scan(
 		&proj.ID,
@@ -136,7 +146,7 @@ func (r *projectPostgresRepository) GetBySlug(ctx context.Context, slugStr strin
 		&proj.ThumbnailURL,
 		&proj.ProjectURL,
 		&proj.GithubURL,
-		&techArray,
+		&techJSON,
 		&proj.Category,
 		&proj.Featured,
 		&proj.DisplayOrder,
@@ -155,7 +165,13 @@ func (r *projectPostgresRepository) GetBySlug(ctx context.Context, slugStr strin
 		return nil, fmt.Errorf("failed to get project: %w", err)
 	}
 
-	proj.Technologies = techArray
+	// Unmarshal technologies from JSONB
+	if len(techJSON) > 0 {
+		if err := json.Unmarshal(techJSON, &proj.Technologies); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal technologies: %w", err)
+		}
+	}
+
 	return &proj, nil
 }
 
@@ -203,8 +219,12 @@ func (r *projectPostgresRepository) Update(ctx context.Context, id string, updat
 	}
 
 	if len(updates.Technologies) > 0 {
-		setClauses = append(setClauses, fmt.Sprintf("technologies = $%d", argPos))
-		args = append(args, pq.Array(updates.Technologies))
+		techJSON, err := json.Marshal(updates.Technologies)
+		if err != nil {
+			return fmt.Errorf("failed to marshal technologies: %w", err)
+		}
+		setClauses = append(setClauses, fmt.Sprintf("technologies = $%d::jsonb", argPos))
+		args = append(args, techJSON)
 		argPos++
 	}
 
@@ -324,7 +344,7 @@ func (r *projectPostgresRepository) GetAll(ctx context.Context, filters map[stri
 	projects := []*project.Project{}
 	for rows.Next() {
 		var proj project.Project
-		var techArray pq.StringArray
+		var techJSON []byte
 
 		err := rows.Scan(
 			&proj.ID,
@@ -334,7 +354,7 @@ func (r *projectPostgresRepository) GetAll(ctx context.Context, filters map[stri
 			&proj.ThumbnailURL,
 			&proj.ProjectURL,
 			&proj.GithubURL,
-			&techArray,
+			&techJSON,
 			&proj.Category,
 			&proj.Featured,
 			&proj.DisplayOrder,
@@ -349,7 +369,13 @@ func (r *projectPostgresRepository) GetAll(ctx context.Context, filters map[stri
 			return nil, err
 		}
 
-		proj.Technologies = techArray
+		// Unmarshal technologies from JSONB
+		if len(techJSON) > 0 {
+			if err := json.Unmarshal(techJSON, &proj.Technologies); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal technologies: %w", err)
+			}
+		}
+
 		projects = append(projects, &proj)
 	}
 
