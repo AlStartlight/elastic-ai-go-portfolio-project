@@ -21,6 +21,7 @@ func NewRouter(
 	homepageHandler *HomepageHandler,
 	courseHandler *CourseHandler,
 	projectHandler *ProjectHandler,
+	articleHandler *ArticleHandler,
 	logger logger.Logger,
 	db *sql.DB,
 ) *gin.Engine {
@@ -53,15 +54,18 @@ func NewRouter(
 
 			// Project routes
 			public.GET("/projects", projectHandler.GetAllProjects)
+			public.GET("/projects/recent", projectHandler.GetRecentProjects)
 			public.GET("/projects/:slug", projectHandler.GetProjectBySlug)
 
-			// Article routes (to be implemented)
-			public.GET("/articles", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "articles list endpoint"})
-			})
-			public.GET("/articles/:slug", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "article detail endpoint"})
-			})
+			// Article routes
+			public.GET("/articles", articleHandler.GetArticles)
+			public.GET("/articles/featured", articleHandler.GetFeaturedArticle)
+			public.GET("/articles/featured-list", articleHandler.GetFeaturedArticles)
+			public.GET("/articles/search", articleHandler.SearchArticles)
+			public.GET("/articles/:slug", articleHandler.GetArticle)
+
+			// Categories (public for form access)
+			public.GET("/categories", articleHandler.GetCategories)
 
 			// Course routes (public)
 			public.GET("/courses", courseHandler.GetCourses)
@@ -202,16 +206,17 @@ func NewRouter(
 			admin.PUT("/projects/:id", projectHandler.UpdateProject)
 			admin.DELETE("/projects/:id", projectHandler.DeleteProject)
 
-			// Article management (to be implemented)
-			admin.POST("/articles", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "create article endpoint"})
-			})
-			admin.PUT("/articles/:id", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "update article endpoint"})
-			})
-			admin.DELETE("/articles/:id", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "delete article endpoint"})
-			})
+			// Article management
+			admin.GET("/articles", articleHandler.GetArticles)
+			admin.POST("/articles", articleHandler.CreateArticle)
+			admin.PUT("/articles/:id", articleHandler.UpdateArticle)
+			admin.DELETE("/articles/:id", articleHandler.DeleteArticle)
+
+			// Categories
+			admin.GET("/categories", articleHandler.GetCategories)
+
+			// Newsletter
+			admin.GET("/newsletter/subscribers", articleHandler.GetSubscribers)
 
 			// Course management (admin)
 			admin.GET("/courses", courseHandler.GetAllCourses)     // Get all courses including drafts
@@ -233,6 +238,7 @@ func NewRouter(
 			admin.POST("/upload/video", courseHandler.UploadVideo)
 			admin.POST("/upload/thumbnail", courseHandler.UploadThumbnail)
 			admin.GET("/upload/thumbnails", courseHandler.ListThumbnails)
+			admin.POST("/upload/image", articleHandler.UploadImage)
 		}
 
 		// Student endpoints (protected with JWT)

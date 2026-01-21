@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -113,4 +114,29 @@ func (h *ProjectHandler) DeleteProject(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Project deleted successfully"})
+}
+
+// GetRecentProjects handles GET /public/projects/recent
+// Returns featured and recent projects sorted by display order and date
+func (h *ProjectHandler) GetRecentProjects(c *gin.Context) {
+	limit := 6 // Default limit for recent projects
+	if l := c.Query("limit"); l != "" {
+		if val, err := strconv.Atoi(l); err == nil && val > 0 && val <= 100 {
+			limit = val
+		}
+	}
+
+	filters := make(map[string]interface{})
+	filters["featured"] = true
+	filters["status"] = "published"
+	filters["limit"] = limit
+
+	projects, err := h.projectUseCase.ListProjects(c.Request.Context(), filters)
+	if err != nil {
+		h.logger.Error("Failed to get recent projects", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recent projects"})
+		return
+	}
+
+	c.JSON(http.StatusOK, projects)
 }

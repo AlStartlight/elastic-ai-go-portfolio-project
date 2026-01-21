@@ -47,6 +47,9 @@ func main() {
 	localeRepo := repository.NewLocaleFileSystemRepository()
 	homepageRepo := repository.NewHomepageRepository(database.DB)
 	courseRepo := repository.NewCoursePgRepository(database)
+	articleRepo := repository.NewArticlePostgresRepository(database)
+	categoryRepo := repository.NewCategoryPostgresRepository(database)
+	newsletterRepo := repository.NewNewsletterPostgresRepository(database)
 
 	// Initialize use cases
 	userUseCase := usecase.NewUserUseCase(userRepo, zapLogger)
@@ -54,6 +57,9 @@ func main() {
 	localeUseCase := usecase.NewLocaleUseCase(localeRepo, zapLogger)
 	homepageUseCase := usecase.NewHomepageUsecase(homepageRepo)
 	courseUseCase := usecase.NewCourseUsecase(courseRepo)
+	categoryUseCase := usecase.NewCategoryUsecase(categoryRepo, 10*time.Second)
+	articleUseCase := usecase.NewArticleUsecase(articleRepo, categoryRepo, 10*time.Second)
+	newsletterUseCase := usecase.NewNewsletterUsecase(newsletterRepo, 10*time.Second)
 
 	// Initialize Cloudinary client
 	cloudinaryClient, err := cloudinary.NewCloudinaryClient()
@@ -66,13 +72,14 @@ func main() {
 	homepageHandler := handler.NewHomepageHandler(homepageUseCase)
 	courseHandler := handler.NewCourseHandler(courseUseCase, cloudinaryClient)
 	projectHandler := handler.NewProjectHandler(projectUseCase, zapLogger)
+	articleHandler := handler.NewArticleHandler(articleUseCase, newsletterUseCase, categoryUseCase, cloudinaryClient)
 
 	// Initialize HTTP server
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, courseHandler, projectHandler, zapLogger, database.DB)
+	router := handler.NewRouter(userUseCase, projectUseCase, localeUseCase, homepageHandler, courseHandler, projectHandler, articleHandler, zapLogger, database.DB)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,

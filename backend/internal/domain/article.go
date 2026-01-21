@@ -27,11 +27,11 @@ type Article struct {
 }
 
 type Category struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Color   string `json:"color"`   // e.g., "text-green-300"
-	BgColor string `json:"bgColor"` // e.g., "bg-green-500/20"
-	Slug    string `json:"slug"`
+	ID      string `json:"id" db:"id"`
+	Name    string `json:"name" db:"name"`
+	Color   string `json:"color" db:"color"`      // e.g., "text-green-300"
+	BgColor string `json:"bgColor" db:"bg_color"` // e.g., "bg-green-500/20"
+	Slug    string `json:"slug" db:"slug"`
 }
 
 type Author struct {

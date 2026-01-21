@@ -4,10 +4,12 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
 	"portfolio/internal/domain"
+	"portfolio/internal/infrastructure/cloudinary"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,12 +17,16 @@ import (
 type ArticleHandler struct {
 	articleUsecase    domain.ArticleUsecase
 	newsletterUsecase domain.NewsletterUsecase
+	categoryUsecase   domain.CategoryUsecase
+	cloudinaryClient  *cloudinary.CloudinaryClient
 }
 
-func NewArticleHandler(articleUC domain.ArticleUsecase, newsletterUC domain.NewsletterUsecase) *ArticleHandler {
+func NewArticleHandler(articleUC domain.ArticleUsecase, newsletterUC domain.NewsletterUsecase, categoryUC domain.CategoryUsecase, cloudinaryClient *cloudinary.CloudinaryClient) *ArticleHandler {
 	return &ArticleHandler{
 		articleUsecase:    articleUC,
 		newsletterUsecase: newsletterUC,
+		categoryUsecase:   categoryUC,
+		cloudinaryClient:  cloudinaryClient,
 	}
 }
 
@@ -104,6 +110,37 @@ func (h *ArticleHandler) GetFeaturedArticle(c *gin.Context) {
 	}
 
 	response := mapArticleToResponse(article)
+	c.JSON(http.StatusOK, response)
+}
+
+// GET /api/articles/featured-list
+func (h *ArticleHandler) GetFeaturedArticles(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "3"))
+	if limit <= 0 || limit > 10 {
+		limit = 3
+	}
+
+	params := domain.ArticleListParams{
+		Page:  1,
+		Limit: limit,
+	}
+
+	featured := true
+	params.Featured = &featured
+
+	result, err := h.articleUsecase.GetArticles(c.Request.Context(), params)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	response := ArticleListResponse{
+		Articles:   mapArticlesToResponse(result.Articles),
+		Total:      result.Total,
+		Page:       result.Page,
+		TotalPages: result.TotalPages,
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -199,19 +236,28 @@ func (h *ArticleHandler) DeleteArticle(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Article deleted successfully"})
 }
 
-// GET /api/categories
+// GET /api/admin/categories
 func (h *ArticleHandler) GetCategories(c *gin.Context) {
-	// TODO: Implement category usecase
-	categories := []CategoryResponse{
-		{Name: "Architecture", Color: "text-green-300", BgColor: "bg-green-500/20"},
-		{Name: "Backend", Color: "text-purple-300", BgColor: "bg-purple-500/20"},
-		{Name: "Mobile", Color: "text-blue-300", BgColor: "bg-blue-500/20"},
-		{Name: "Frontend", Color: "text-cyan-300", BgColor: "bg-cyan-500/20"},
-		{Name: "UX/UI", Color: "text-yellow-300", BgColor: "bg-yellow-500/20"},
-		{Name: "DevOps", Color: "text-indigo-300", BgColor: "bg-indigo-500/20"},
+	categories, err := h.categoryUsecase.GetCategories(c.Request.Context())
+	if err != nil {
+		log.Printf("Error fetching categories: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch categories", "details": err.Error()})
+		return
 	}
 
-	c.JSON(http.StatusOK, categories)
+	// Convert to response format
+	response := make([]map[string]interface{}, 0, len(categories))
+	for _, cat := range categories {
+		response = append(response, map[string]interface{}{
+			"id":      cat.ID,
+			"name":    cat.Name,
+			"slug":    cat.Slug,
+			"color":   cat.Color,
+			"bgColor": cat.BgColor,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // GET /api/articles/search
@@ -365,6 +411,34 @@ func (h *ArticleHandler) GetArticleStats(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// POST /api/admin/upload/image - Upload image for article editor
+func (h *ArticleHandler) UploadImage(c *gin.Context) {
+	if h.cloudinaryClient == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Image upload service not configured"})
+		return
+	}
+
+	file, header, err := c.Request.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No image file provided"})
+		return
+	}
+	defer file.Close()
+
+	imageURL, err := h.cloudinaryClient.UploadImage(c.Request.Context(), file, header.Filename)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": 1,
+		"file": gin.H{
+			"url": imageURL,
+		},
+	})
 }
 
 // Helper functions
