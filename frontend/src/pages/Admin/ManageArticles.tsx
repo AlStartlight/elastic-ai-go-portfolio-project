@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface Article {
   id: string;
@@ -20,6 +22,7 @@ interface Article {
 
 const ManageArticles: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -41,12 +44,13 @@ const ManageArticles: React.FC = () => {
   const fetchArticles = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/articles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setArticles(response.data.articles || []);
     } catch (error) {
       console.error('Failed to fetch articles:', error);
+      toast.error('Failed to load articles');
     } finally {
       setLoading(false);
     }
@@ -145,17 +149,13 @@ const ManageArticles: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">My Key Notes Articles</h1>
         <button
-          onClick={() => {
-            resetForm();
-            setEditingArticle(null);
-            setShowModal(true);
-          }}
-          className="btn btn-primary"
+          onClick={() => navigate('/admin/articles/new')}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add New Article
+          Create New Article
         </button>
       </div>
 
@@ -202,8 +202,9 @@ const ManageArticles: React.FC = () => {
                   </svg>
                 </button>
                 <button
-                  onClick={() => openEditModal(article)}
+                  onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
                   className="p-2 hover:bg-blue-500/20 rounded transition-colors"
+                  title="Edit Article"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

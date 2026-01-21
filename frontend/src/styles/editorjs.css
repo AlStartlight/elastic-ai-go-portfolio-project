@@ -1,0 +1,176 @@
+/* EditorJS Styles - Modern Green Theme */
+.codex-editor {
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.codex-editor__redactor {
+  padding-bottom: 50px !important;
+  padding-top: 10px !important;
+}
+
+.ce-block__content,
+.ce-toolbar__content {
+  max-width: 100%;
+}
+
+/* Toolbar Buttons */
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+  border-color: rgba(16, 185, 129, 0.4);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Popover Menus */
+.ce-popover {
+  background: rgb(17, 24, 39);
+  border: 1px solid rgb(55, 65, 81);
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.ce-popover__item-icon {
+  background: transparent;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.ce-popover__item {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.ce-popover__item:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  border-left: 3px solid #10b981;
+}
+
+.ce-popover__item--active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+  color: #10b981;
+}
+
+/* Inline Toolbar */
+.ce-inline-toolbar {
+  background: rgb(17, 24, 39);
+  border: 1px solid rgb(55, 65, 81);
+  border-radius: 10px;
+  color: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.ce-inline-tool {
+  color: #fff;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.ce-inline-tool:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+/* Block Styles */
+.ce-block {
+  color: #fff;
+}
+
+.ce-paragraph {
+  color: #e5e7eb;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.ce-header {
+  color: #fff;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+/* Code Block */
+.ce-code__textarea {
+  background: rgb(17, 24, 39);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* Lists */
+.cdx-list {
+  color: #e5e7eb;
+}
+
+/* Image Tool */
+.image-tool {
+  --bg-color: rgb(17, 24, 39);
+  --front-color: #fff;
+  --border-color: rgba(16, 185, 129, 0.3);
+}
+
+.image-tool__caption {
+  color: #9ca3af;
+}
+
+/* Buttons */
+.cdx-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.cdx-button:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Input Fields */
+.cdx-input {
+  background: rgb(17, 24, 39);
+  color: #fff;
+  border: 1px solid rgb(55, 65, 81);
+  padding: 0.625rem;
+  border-radius: 8px;
+}
+
+.cdx-input:focus {
+  border-color: #10b981;
+  outline: none;
+}
+
+/* Selection */
+::selection {
+  background: rgba(16, 185, 129, 0.3);
+  color: #fff;
+}
+
+/* Link */
+.ce-inline-tool--link {
+  color: #10b981;
+}

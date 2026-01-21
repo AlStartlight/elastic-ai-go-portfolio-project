@@ -48,7 +48,7 @@ export const articleApi = {
     if (params?.category) queryParams.append('category', params.category);
     if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
 
-    const response = await fetch(`${API_BASE_URL}/articles?${queryParams}`);
+    const response = await fetch(`${API_BASE_URL}/public/articles?${queryParams}`);
     if (!response.ok) {
       throw new Error('Failed to fetch articles');
     }
@@ -57,7 +57,7 @@ export const articleApi = {
 
   // Get single article by slug
   getArticle: async (slug: string): Promise<Article> => {
-    const response = await fetch(`${API_BASE_URL}/articles/${slug}`);
+    const response = await fetch(`${API_BASE_URL}/public/articles/${slug}`);
     if (!response.ok) {
       throw new Error('Failed to fetch article');
     }
@@ -66,9 +66,23 @@ export const articleApi = {
 
   // Get featured article
   getFeaturedArticle: async (): Promise<Article> => {
-    const response = await fetch(`${API_BASE_URL}/articles/featured`);
+    const response = await fetch(`${API_BASE_URL}/public/articles/featured`);
     if (!response.ok) {
       throw new Error('Failed to fetch featured article');
+    }
+    return response.json();
+  },
+
+  // Get featured articles list
+  getFeaturedArticles: async (limit: number = 3): Promise<{
+    articles: Article[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> => {
+    const response = await fetch(`${API_BASE_URL}/public/articles/featured-list?limit=${limit}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch featured articles');
     }
     return response.json();
   },
@@ -81,7 +95,7 @@ export const articleApi = {
     totalPages: number;
   }> => {
     const response = await fetch(
-      `${API_BASE_URL}/articles/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+      `${API_BASE_URL}/public/articles/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
     );
     if (!response.ok) {
       throw new Error('Failed to search articles');
@@ -91,7 +105,7 @@ export const articleApi = {
 
   // Create new article
   createArticle: async (articleData: CreateArticleRequest): Promise<Article> => {
-    const response = await fetch(`${API_BASE_URL}/articles`, {
+    const response = await fetch(`${API_BASE_URL}/admin/articles`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +125,7 @@ export const articleApi = {
 
   // Update existing article
   updateArticle: async (id: string, articleData: UpdateArticleRequest): Promise<Article> => {
-    const response = await fetch(`${API_BASE_URL}/articles/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/articles/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -131,7 +145,7 @@ export const articleApi = {
 
   // Delete article
   deleteArticle: async (id: string): Promise<{ message: string }> => {
-    const response = await fetch(`${API_BASE_URL}/articles/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/articles/${id}`, {
       method: 'DELETE',
       headers: {
         // Add authorization header when implementing auth
@@ -155,7 +169,7 @@ export const articleApi = {
     bgColor: string;
     slug: string;
   }>> => {
-    const response = await fetch(`${API_BASE_URL}/categories`);
+    const response = await fetch(`${API_BASE_URL}/admin/categories`);
     if (!response.ok) {
       throw new Error('Failed to fetch categories');
     }
@@ -539,6 +553,12 @@ export const projectsApi = {
   getAll: async (): Promise<Project[]> => {
     const response = await fetch(`${API_BASE_URL}/public/projects`);
     if (!response.ok) throw new Error('Failed to fetch projects');
+    return response.json();
+  },
+  
+  getRecent: async (limit: number = 6): Promise<Project[]> => {
+    const response = await fetch(`${API_BASE_URL}/public/projects/recent?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch recent projects');
     return response.json();
   },
   

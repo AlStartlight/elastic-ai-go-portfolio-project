@@ -11,6 +11,7 @@ import Dashboard from '../pages/Admin/Dashboard';
 import ManageProjects from '../pages/Admin/ManageProjects';
 import ManageHomepage from '../pages/Admin/ManageHomepage';
 import ManageArticles from '../pages/Admin/ManageArticles';
+import ArticleEditor from '../pages/Admin/ArticleEditor';
 import ManageAbout from '../pages/Admin/ManageAbout';
 import ManageNewsletter from '../pages/Admin/ManageNewsletter';
 import ManageCourses from '../pages/Admin/ManageCourses';
@@ -73,6 +74,8 @@ const Router = () => {
         <Route path="tech-stacks" element={<ManageTechStacks />} />
         <Route path="projects" element={<ManageProjects />} />
         <Route path="articles" element={<ManageArticles />} />
+        <Route path="articles/new" element={<ArticleEditor />} />
+        <Route path="articles/edit/:id" element={<ArticleEditor />} />
         <Route path="about" element={<ManageAbout />} />
         <Route path="newsletter" element={<ManageNewsletter />} />
         <Route path="courses" element={<ManageCourses />} />
