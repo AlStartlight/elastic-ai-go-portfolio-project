@@ -143,6 +143,64 @@ export const articleApi = {
     return response.json();
   },
 
+  // Upload image for article content
+  uploadImage: async (file: File): Promise<{ success: number; file: { url: string } }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/admin/upload/image`, {
+      method: 'POST',
+      // Note: Don't set Content-Type header, browser will set it with boundary
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload image');
+    }
+    
+    return response.json();
+  },
+
+  // List images from Cloudinary
+  listImages: async (maxResults: number = 100): Promise<{
+    images: Array<{
+      publicId: string;
+      url: string;
+      secureUrl: string;
+      width: number;
+      height: number;
+      format: string;
+      createdAt: string;
+    }>;
+    total: number;
+  }> => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/admin/upload/images?max=${maxResults}`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to list images');
+    }
+    
+    return response.json();
+  },
+
   // Delete article
   deleteArticle: async (id: string): Promise<{ message: string }> => {
     const response = await fetch(`${API_BASE_URL}/admin/articles/${id}`, {

@@ -1,0 +1,354 @@
+/* Cloudinary Image Tool Styles */
+
+.image-tool {
+  margin: 1rem 0;
+}
+
+.image-tool__image-container {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.image-tool__image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-tool__caption {
+  margin-top: 0.5rem;
+}
+
+.image-tool__caption-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.image-tool__caption-input:focus {
+  border-color: rgb(34, 197, 94);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.image-tool__caption-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.image-tool__uploader {
+  padding: 2rem;
+  text-align: center;
+  border: 2px dashed rgba(75, 85, 99, 0.5);
+  border-radius: 0.5rem;
+  background: rgba(31, 41, 55, 0.3);
+  transition: all 0.3s;
+}
+
+.image-tool__uploader:hover {
+  border-color: rgb(34, 197, 94);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.image-tool__upload-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.image-tool__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgb(55, 65, 81);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.image-tool__button:hover {
+  background: rgb(75, 85, 99);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.browse-gallery-btn {
+  background: rgb(37, 99, 235) !important;
+}
+
+.browse-gallery-btn:hover {
+  background: rgb(29, 78, 216) !important;
+}
+
+.image-tool__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: rgb(156, 163, 175);
+}
+
+.image-tool__error {
+  padding: 2rem;
+  text-align: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+  color: rgb(248, 113, 113);
+}
+
+.image-tool__retry-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: rgb(239, 68, 68);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.image-tool__retry-button:hover {
+  background: rgb(220, 38, 38);
+}
+
+/* Cloudinary Gallery Modal */
+.cloudinary-gallery-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  position: relative;
+  background: rgb(31, 41, 55);
+  border-radius: 1rem;
+  max-width: 1200px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.5);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.loading-text {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+  color: rgb(156, 163, 175);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: rgb(156, 163, 175);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close-btn:hover {
+  color: white;
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.gallery-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: rgb(34, 197, 94);
+}
+
+.gallery-empty,
+.gallery-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 300px;
+  text-align: center;
+  color: rgb(156, 163, 175);
+}
+
+.gallery-empty svg,
+.gallery-error svg {
+  color: rgb(107, 114, 128);
+}
+
+.gallery-empty p:first-of-type,
+.gallery-error p:first-of-type {
+  font-size: 1.125rem;
+  color: white;
+  margin: 0;
+}
+
+.gallery-empty .text-sm {
+  font-size: 0.875rem;
+  color: rgb(107, 114, 128);
+}
+
+.retry-btn {
+  padding: 0.5rem 1.5rem;
+  background: rgb(34, 197, 94);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.retry-btn:hover {
+  background: rgb(22, 163, 74);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(75, 85, 99, 0.5);
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.gallery-item:hover {
+  border-color: rgb(34, 197, 94);
+  transform: scale(1.05);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-item-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0);
+  color: white;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.gallery-item:hover .gallery-item-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  opacity: 1;
+}
+
+.gallery-item-overlay p {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gallery-item-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.gallery-item-name {
+  margin: 0;
+  font-size: 0.75rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gallery-item-size {
+  margin: 0;
+  font-size: 0.625rem;
+  color: rgb(156, 163, 175);
+}
+
+/* Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

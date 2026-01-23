@@ -3,8 +3,9 @@ import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
-import ImageTool from '@editorjs/image';
 import CodeTool from '@editorjs/code';
+import CloudinaryImageTool from './CloudinaryImageTool';
+import '../styles/cloudinary-image-tool.css';
 
 interface EditorJSComponentProps {
   data?: OutputData;
@@ -84,69 +85,7 @@ const EditorJSComponent: React.FC<EditorJSComponentProps> = memo(({
               }
             },
             image: {
-              class: ImageTool as any,
-              config: {
-                endpoints: {
-                  byFile: `${import.meta.env.VITE_API_URL}/api/admin/upload/image`,
-                  byUrl: `${import.meta.env.VITE_API_URL}/api/admin/upload/image-url`,
-                },
-                additionalRequestHeaders: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`
-                },
-                field: 'image',
-                types: 'image/*',
-                captionPlaceholder: 'Image caption',
-                buttonContent: 'Select an image',
-                uploader: {
-                  uploadByFile: async (file: File) => {
-                    const formData = new FormData();
-                    formData.append('image', file);
-
-                    try {
-                      const response = await fetch(
-                        `${import.meta.env.VITE_API_URL}/api/admin/upload/image`,
-                        {
-                          method: 'POST',
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                          },
-                          body: formData
-                        }
-                      );
-
-                      const data = await response.json();
-                      
-                      if (response.ok) {
-                        return {
-                          success: 1,
-                          file: {
-                            url: data.url || data.imageUrl || data.file?.url
-                          }
-                        };
-                      } else {
-                        return {
-                          success: 0,
-                          error: data.error || 'Upload failed'
-                        };
-                      }
-                    } catch (error) {
-                      console.error('Image upload error:', error);
-                      return {
-                        success: 0,
-                        error: 'Failed to upload image'
-                      };
-                    }
-                  },
-                  uploadByUrl: async (url: string) => {
-                    return {
-                      success: 1,
-                      file: {
-                        url: url
-                      }
-                    };
-                  }
-                }
-              }
+              class: CloudinaryImageTool as any,
             }
           },
           onReady: () => {
