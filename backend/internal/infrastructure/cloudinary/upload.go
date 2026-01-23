@@ -36,8 +36,13 @@ func NewCloudinaryClient() (*CloudinaryClient, error) {
 	return &CloudinaryClient{cld: cld}, nil
 }
 
-// UploadImage uploads an image to Cloudinary
+// UploadImage uploads an image to Cloudinary (defaults to articles/images folder)
 func (c *CloudinaryClient) UploadImage(ctx context.Context, file multipart.File, filename string) (string, error) {
+	return c.UploadImageToFolder(ctx, file, filename, "articles/images")
+}
+
+// UploadImageToFolder uploads an image to a specific Cloudinary folder
+func (c *CloudinaryClient) UploadImageToFolder(ctx context.Context, file multipart.File, filename string, folder string) (string, error) {
 	// Read file into bytes
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
@@ -45,7 +50,7 @@ func (c *CloudinaryClient) UploadImage(ctx context.Context, file multipart.File,
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	fmt.Printf("Cloudinary: Uploading %d bytes to folder courses/thumbnails with name %s\n", len(fileBytes), filename)
+	fmt.Printf("Cloudinary: Uploading %d bytes to folder %s with name %s\n", len(fileBytes), folder, filename)
 
 	// Remove file extension from filename for Cloudinary PublicID
 	publicID := filename
@@ -59,7 +64,7 @@ func (c *CloudinaryClient) UploadImage(ctx context.Context, file multipart.File,
 	// Upload to Cloudinary
 	uploadResult, err := c.cld.Upload.Upload(ctx, reader, uploader.UploadParams{
 		PublicID:     publicID,
-		Folder:       "courses/thumbnails",
+		Folder:       folder,
 		ResourceType: "image",
 	})
 	if err != nil {
@@ -73,7 +78,7 @@ func (c *CloudinaryClient) UploadImage(ctx context.Context, file multipart.File,
 
 // UploadThumbnail is a convenience method for uploading course thumbnails
 func (c *CloudinaryClient) UploadThumbnail(ctx context.Context, file multipart.File, filename string) (string, error) {
-	return c.UploadImage(ctx, file, filename)
+	return c.UploadImageToFolder(ctx, file, filename, "courses/thumbnails")
 }
 
 // CloudinaryImage represents an image in Cloudinary
@@ -87,7 +92,7 @@ type CloudinaryImage struct {
 	CreatedAt string `json:"created_at"`
 }
 
-// ListImages lists all images in the courses/thumbnails folder
+// ListImages lists all images from both courses/thumbnails and articles/images folders
 func (c *CloudinaryClient) ListImages(ctx context.Context, maxResults int) ([]CloudinaryImage, error) {
 	if maxResults <= 0 {
 		maxResults = 100 // default - increase to ensure we get all images
@@ -112,13 +117,18 @@ func (c *CloudinaryClient) ListImages(ctx context.Context, maxResults int) ([]Cl
 		// Log every image to see what we're getting
 		fmt.Printf("Cloudinary: Asset PublicID: %s\n", asset.PublicID)
 
-		// Filter by folder - check if PublicID starts with our folder path
-		// Try both with and without trailing slash
-		if len(asset.PublicID) >= 19 &&
+		// Filter by folders - check if PublicID starts with courses/thumbnails or articles/images
+		isCourseThumbnail := len(asset.PublicID) >= 19 &&
 			(asset.PublicID[:19] == "courses/thumbnails/" ||
 				(len(asset.PublicID) >= 18 && asset.PublicID[:18] == "courses/thumbnails" &&
-					(len(asset.PublicID) == 18 || asset.PublicID[18] == '/'))) {
+					(len(asset.PublicID) == 18 || asset.PublicID[18] == '/')))
 
+		isArticleImage := len(asset.PublicID) >= 15 &&
+			(asset.PublicID[:15] == "articles/images/" ||
+				(len(asset.PublicID) >= 14 && asset.PublicID[:14] == "articles/images" &&
+					(len(asset.PublicID) == 14 || asset.PublicID[14] == '/')))
+
+		if isCourseThumbnail || isArticleImage {
 			fmt.Printf("Cloudinary: ✓ Matched - PublicID: %s, URL: %s\n", asset.PublicID, asset.SecureURL)
 
 			createdAt := ""
@@ -138,6 +148,6 @@ func (c *CloudinaryClient) ListImages(ctx context.Context, maxResults int) ([]Cl
 		}
 	}
 
-	fmt.Printf("Cloudinary: Final count - Listed %d images from courses/thumbnails folder\n", len(images))
+	fmt.Printf("Cloudinary: Final count - Listed %d images from both folders\n", len(images))
 	return images, nil
 }

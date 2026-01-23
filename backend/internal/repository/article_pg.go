@@ -102,7 +102,7 @@ func (r *articlePostgresRepository) GetAll(ctx context.Context, params domain.Ar
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
-			u.id as author_id, u.name as author_name, u.email as author_email, u.avatar as author_avatar
+			u.id as author_id, u.name as author_name, u.email as author_email
 		FROM articles a
 		INNER JOIN categories c ON a.category_id = c.id
 		INNER JOIN users u ON a.author_id = u.id
@@ -142,7 +142,7 @@ func (r *articlePostgresRepository) GetByID(ctx context.Context, id string) (*do
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
-			u.id as author_id, u.name as author_name, u.email as author_email, u.avatar as author_avatar
+			u.id as author_id, u.name as author_name, u.email as author_email
 		FROM articles a
 		INNER JOIN categories c ON a.category_id = c.id
 		INNER JOIN users u ON a.author_id = u.id
@@ -176,7 +176,7 @@ func (r *articlePostgresRepository) GetBySlug(ctx context.Context, slug string) 
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
-			u.id as author_id, u.name as author_name, u.email as author_email, u.avatar as author_avatar
+			u.id as author_id, u.name as author_name, u.email as author_email
 		FROM articles a
 		INNER JOIN categories c ON a.category_id = c.id
 		INNER JOIN users u ON a.author_id = u.id
@@ -210,7 +210,7 @@ func (r *articlePostgresRepository) GetFeatured(ctx context.Context) (*domain.Ar
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
-			u.id as author_id, u.name as author_name, u.email as author_email, u.avatar as author_avatar
+			u.id as author_id, u.name as author_name, u.email as author_email
 		FROM articles a
 		INNER JOIN categories c ON a.category_id = c.id
 		INNER JOIN users u ON a.author_id = u.id
@@ -266,7 +266,7 @@ func (r *articlePostgresRepository) Search(ctx context.Context, params domain.Se
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
-			u.id as author_id, u.name as author_name, u.email as author_email, u.avatar as author_avatar
+			u.id as author_id, u.name as author_name, u.email as author_email
 		FROM articles a
 		INNER JOIN categories c ON a.category_id = c.id
 		INNER JOIN users u ON a.author_id = u.id

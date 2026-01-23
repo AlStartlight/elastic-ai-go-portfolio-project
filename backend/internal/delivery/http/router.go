@@ -239,6 +239,7 @@ func NewRouter(
 			admin.POST("/upload/thumbnail", courseHandler.UploadThumbnail)
 			admin.GET("/upload/thumbnails", courseHandler.ListThumbnails)
 			admin.POST("/upload/image", articleHandler.UploadImage)
+			admin.GET("/upload/images", articleHandler.ListImages)
 		}
 
 		// Student endpoints (protected with JWT)

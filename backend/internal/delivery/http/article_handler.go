@@ -441,6 +441,32 @@ func (h *ArticleHandler) UploadImage(c *gin.Context) {
 	})
 }
 
+// GET /api/admin/upload/images - List all images from Cloudinary
+func (h *ArticleHandler) ListImages(c *gin.Context) {
+	if h.cloudinaryClient == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Image service not configured"})
+		return
+	}
+
+	maxResults := 100
+	if maxStr := c.Query("max"); maxStr != "" {
+		if max, err := strconv.Atoi(maxStr); err == nil && max > 0 {
+			maxResults = max
+		}
+	}
+
+	images, err := h.cloudinaryClient.ListImages(c.Request.Context(), maxResults)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list images"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"images": images,
+		"total":  len(images),
+	})
+}
+
 // Helper functions
 
 func mapArticleToResponse(article *domain.Article) ArticleResponse {
