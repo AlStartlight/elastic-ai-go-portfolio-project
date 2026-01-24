@@ -3,6 +3,16 @@ import { useTranslation } from 'react-i18next';
 import SEO from '../components/SEO';
 import { useProjects } from '../hooks/useProjects';
 
+// Helper function to ensure URL has http:// or https:// protocol
+const ensureHttpProtocol = (url: string | undefined): string => {
+  if (!url) return '';
+  const trimmedUrl = url.trim();
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+    return trimmedUrl;
+  }
+  return `https://${trimmedUrl}`;
+};
+
 const Projects: React.FC = () => {
   const { t } = useTranslation();
   const { projects, loading, error } = useProjects();
@@ -87,7 +97,7 @@ const Projects: React.FC = () => {
                     <div className="flex gap-4 mt-6">
                       {project.projectUrl && (
                         <a 
-                          href={project.projectUrl}
+                          href={ensureHttpProtocol(project.projectUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center font-semibold py-2 px-4 rounded-lg transition-all duration-300"
@@ -97,7 +107,7 @@ const Projects: React.FC = () => {
                       )}
                       {project.githubUrl && (
                         <a 
-                          href={project.githubUrl}
+                          href={ensureHttpProtocol(project.githubUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 border-2 border-gray-600 hover:border-green-500 text-gray-300 hover:text-green-500 text-center font-semibold py-2 px-4 rounded-lg transition-all duration-300"
