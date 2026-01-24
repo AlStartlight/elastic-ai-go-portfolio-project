@@ -4,6 +4,7 @@ import Projects from '../pages/Projects';
 import About from '../pages/About';
 import Courses from '../pages/Courses';
 import CourseDetail from '../pages/CourseDetail';
+import ArticleDetail from '../pages/ArticleDetail';
 import CustomerLogin from '../pages/CustomerLogin';
 import CustomerRegister from '../pages/CustomerRegister';
 import AdminLogin from '../pages/Admin/Login';
@@ -32,6 +33,7 @@ const Router = () => {
         <Route index element={<Home />} />
         <Route path="projects" element={<Projects />} />
         <Route path="about" element={<About />} />
+        <Route path="articles/:slug" element={<ArticleDetail />} />
         
         {/* Protected Customer Routes */}
         <Route 

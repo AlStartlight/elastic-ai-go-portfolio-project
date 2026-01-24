@@ -12,6 +12,7 @@ export interface CreateArticleRequest {
   title: string;
   excerpt: string;
   content: string;
+  thumbnail?: string;
   categoryId: string;
   featured?: boolean;
   published?: boolean;
@@ -22,6 +23,7 @@ export interface UpdateArticleRequest {
   title?: string;
   excerpt?: string;
   content?: string;
+  thumbnail?: string;
   categoryId?: string;
   featured?: boolean;
   published?: boolean;
