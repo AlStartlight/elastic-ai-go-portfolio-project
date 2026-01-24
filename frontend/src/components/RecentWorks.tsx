@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { projectsApi, Project } from '../services/api-service';
 
+// Helper function to ensure URL has http:// or https:// protocol
+const ensureHttpProtocol = (url: string | undefined): string => {
+  if (!url) return '';
+  const trimmedUrl = url.trim();
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+    return trimmedUrl;
+  }
+  return `https://${trimmedUrl}`;
+};
+
 interface RecentWorksProps {
   limit?: number;
 }
@@ -142,7 +152,7 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
                   <div className="flex gap-2">
                     {project.projectUrl && (
                       <a
-                        href={project.projectUrl}
+                        href={ensureHttpProtocol(project.projectUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300"
@@ -152,7 +162,7 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
                     )}
                     {project.githubUrl && (
                       <a
-                        href={project.githubUrl}
+                        href={ensureHttpProtocol(project.githubUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300"

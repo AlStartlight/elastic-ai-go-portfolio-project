@@ -113,7 +113,7 @@ const MainLayout: React.FC = () => {
                   </Link>
                   <Link 
                     to="/register" 
-                    className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                    className="px-4 py-2 rounded bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-green-500/50 transform hover:scale-105"
                   >
                     Sign Up
                   </Link>
@@ -171,7 +171,7 @@ const MainLayout: React.FC = () => {
                       </Link>
                       <Link 
                         to="/register" 
-                        className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+                        className="px-4 py-2 rounded bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-green-500/50"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Sign Up
