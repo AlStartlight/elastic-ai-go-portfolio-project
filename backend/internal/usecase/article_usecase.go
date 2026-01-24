@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -14,13 +16,15 @@ import (
 type articleUsecase struct {
 	articleRepo  domain.ArticleRepository
 	categoryRepo domain.CategoryRepository
+	db           *sql.DB // For querying admin user
 	timeout      time.Duration
 }
 
-func NewArticleUsecase(articleRepo domain.ArticleRepository, categoryRepo domain.CategoryRepository, timeout time.Duration) domain.ArticleUsecase {
+func NewArticleUsecase(articleRepo domain.ArticleRepository, categoryRepo domain.CategoryRepository, db *sql.DB, timeout time.Duration) domain.ArticleUsecase {
 	return &articleUsecase{
 		articleRepo:  articleRepo,
 		categoryRepo: categoryRepo,
+		db:           db,
 		timeout:      timeout,
 	}
 }
@@ -82,7 +86,7 @@ func (a *articleUsecase) CreateArticle(ctx context.Context, req domain.CreateArt
 	defer cancel()
 
 	// Validate category exists
-	_, err := a.categoryRepo.GetByID(ctx, req.CategoryID)
+	category, err := a.categoryRepo.GetByID(ctx, req.CategoryID)
 	if err != nil {
 		return nil, domain.ErrCategoryNotFound
 	}
@@ -99,6 +103,7 @@ func (a *articleUsecase) CreateArticle(ctx context.Context, req domain.CreateArt
 		Title:       req.Title,
 		Excerpt:     req.Excerpt,
 		Content:     req.Content,
+		Category:    *category, // Set the full category object
 		Featured:    req.Featured,
 		Published:   req.Published,
 		Tags:        req.Tags,
@@ -143,23 +148,32 @@ func (a *articleUsecase) UpdateArticle(ctx context.Context, id string, req domai
 		}
 	}
 
+	// Generate new slug if title changed
+	if req.Title != "" {
+		existingArticle.Title = req.Title
+		existingArticle.GenerateSlug()
+		req.Slug = existingArticle.Slug
+	}
+
+	// Calculate read time if content changed
+	if req.Content != "" {
+		existingArticle.Content = req.Content
+		existingArticle.CalculateReadTime()
+		req.ReadTime = existingArticle.ReadTime
+	}
+
 	// Update article
 	err = a.articleRepo.Update(ctx, id, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update article: %w", err)
 	}
 
-	// Apply updates to existing article object to avoid additional query
-	if req.Title != "" {
-		existingArticle.Title = req.Title
-		existingArticle.GenerateSlug()
-	}
+	// Apply other updates to existing article object
 	if req.Excerpt != "" {
 		existingArticle.Excerpt = req.Excerpt
 	}
-	if req.Content != "" {
-		existingArticle.Content = req.Content
-		existingArticle.CalculateReadTime()
+	if req.Thumbnail != "" {
+		existingArticle.Thumbnail = req.Thumbnail
 	}
 	if req.CategoryID != "" {
 		existingArticle.Category.ID = req.CategoryID
@@ -210,6 +224,24 @@ func (a *articleUsecase) GetArticleStats(ctx context.Context, id string) (*domai
 	defer cancel()
 
 	return a.articleRepo.GetStats(ctx, id)
+}
+
+func (a *articleUsecase) GetDefaultAuthorID(ctx context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, a.timeout)
+	defer cancel()
+
+	var authorID string
+	// Get the first admin user from the database
+	query := `SELECT id FROM users WHERE role = 'admin' AND is_active = true ORDER BY created_at ASC LIMIT 1`
+	err := a.db.QueryRowContext(ctx, query).Scan(&authorID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", errors.New("no admin user found")
+		}
+		return "", fmt.Errorf("failed to get default author: %w", err)
+	}
+
+	return authorID, nil
 }
 
 // Helper function to generate unique IDs

@@ -58,7 +58,7 @@ func main() {
 	homepageUseCase := usecase.NewHomepageUsecase(homepageRepo)
 	courseUseCase := usecase.NewCourseUsecase(courseRepo)
 	categoryUseCase := usecase.NewCategoryUsecase(categoryRepo, 10*time.Second)
-	articleUseCase := usecase.NewArticleUsecase(articleRepo, categoryRepo, 10*time.Second)
+	articleUseCase := usecase.NewArticleUsecase(articleRepo, categoryRepo, database.DB, 10*time.Second)
 	newsletterUseCase := usecase.NewNewsletterUsecase(newsletterRepo, 10*time.Second)
 
 	// Initialize Cloudinary client

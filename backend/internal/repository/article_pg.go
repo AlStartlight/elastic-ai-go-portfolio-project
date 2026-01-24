@@ -28,6 +28,7 @@ type articleDB struct {
 	Title           string         `db:"title"`
 	Excerpt         string         `db:"excerpt"`
 	Content         sql.NullString `db:"content"`
+	Thumbnail       sql.NullString `db:"thumbnail"`
 	CategoryID      string         `db:"category_id"`
 	CategoryName    string         `db:"category_name"`
 	CategoryColor   string         `db:"category_color"`
@@ -65,13 +66,12 @@ func (r *articlePostgresRepository) GetAll(ctx context.Context, params domain.Ar
 		argIndex++
 	}
 
+	// Only filter by published status if explicitly provided
+	// This allows admin to see all articles when Published is nil
 	if params.Published != nil {
 		conditions = append(conditions, fmt.Sprintf("a.published = $%d", argIndex))
 		args = append(args, *params.Published)
 		argIndex++
-	} else {
-		// Default to only published articles
-		conditions = append(conditions, "a.published = true")
 	}
 
 	whereClause := ""
@@ -98,7 +98,7 @@ func (r *articlePostgresRepository) GetAll(ctx context.Context, params domain.Ar
 	// Get articles
 	query := fmt.Sprintf(`
 		SELECT 
-			a.id, a.title, a.excerpt, a.content, a.published_at, a.updated_at,
+			a.id, a.title, a.excerpt, a.content, a.thumbnail, a.published_at, a.updated_at,
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
@@ -138,7 +138,7 @@ func (r *articlePostgresRepository) GetAll(ctx context.Context, params domain.Ar
 func (r *articlePostgresRepository) GetByID(ctx context.Context, id string) (*domain.Article, error) {
 	query := `
 		SELECT 
-			a.id, a.title, a.excerpt, a.content, a.published_at, a.updated_at,
+			a.id, a.title, a.excerpt, a.content, a.thumbnail, a.published_at, a.updated_at,
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
@@ -172,7 +172,7 @@ func (r *articlePostgresRepository) GetByID(ctx context.Context, id string) (*do
 func (r *articlePostgresRepository) GetBySlug(ctx context.Context, slug string) (*domain.Article, error) {
 	query := `
 		SELECT 
-			a.id, a.title, a.excerpt, a.content, a.published_at, a.updated_at,
+			a.id, a.title, a.excerpt, a.content, a.thumbnail, a.published_at, a.updated_at,
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
@@ -206,7 +206,7 @@ func (r *articlePostgresRepository) GetBySlug(ctx context.Context, slug string) 
 func (r *articlePostgresRepository) GetFeatured(ctx context.Context) (*domain.Article, error) {
 	query := `
 		SELECT 
-			a.id, a.title, a.excerpt, a.content, a.published_at, a.updated_at,
+			a.id, a.title, a.excerpt, a.content, a.thumbnail, a.published_at, a.updated_at,
 			a.read_time, a.slug, a.featured, a.published, a.view_count, a.like_count,
 			c.id as category_id, c.name as category_name, c.color as category_color,
 			c.bg_color as category_bg_color, c.slug as category_slug,
@@ -311,14 +311,15 @@ func (r *articlePostgresRepository) Create(ctx context.Context, article *domain.
 	// Insert article
 	query := `
 		INSERT INTO articles (
-			id, title, excerpt, content, category_id, published_at, updated_at,
+			id, title, excerpt, content, thumbnail, category_id, published_at, updated_at,
 			read_time, slug, featured, published, author_id, view_count, like_count
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
 
 	content := sql.NullString{String: article.Content, Valid: article.Content != ""}
+	thumbnail := sql.NullString{String: article.Thumbnail, Valid: article.Thumbnail != ""}
 
 	_, err = tx.ExecContext(ctx, query,
-		article.ID, article.Title, article.Excerpt, content,
+		article.ID, article.Title, article.Excerpt, content, thumbnail,
 		article.Category.ID, article.PublishedAt, article.UpdatedAt,
 		article.ReadTime, article.Slug, article.Featured, article.Published,
 		article.Author.ID, 0, 0, // view_count and like_count start at 0
@@ -362,9 +363,27 @@ func (r *articlePostgresRepository) Update(ctx context.Context, id string, updat
 		argIndex++
 	}
 
+	if updates.Thumbnail != "" {
+		setParts = append(setParts, fmt.Sprintf("thumbnail = $%d", argIndex))
+		args = append(args, updates.Thumbnail)
+		argIndex++
+	}
+
 	if updates.CategoryID != "" {
 		setParts = append(setParts, fmt.Sprintf("category_id = $%d", argIndex))
 		args = append(args, updates.CategoryID)
+		argIndex++
+	}
+
+	if updates.Slug != "" {
+		setParts = append(setParts, fmt.Sprintf("slug = $%d", argIndex))
+		args = append(args, updates.Slug)
+		argIndex++
+	}
+
+	if updates.ReadTime > 0 {
+		setParts = append(setParts, fmt.Sprintf("read_time = $%d", argIndex))
+		args = append(args, updates.ReadTime)
 		argIndex++
 	}
 
@@ -486,6 +505,11 @@ func (r *articlePostgresRepository) dbToArticle(articleDB *articleDB) *domain.Ar
 		content = articleDB.Content.String
 	}
 
+	thumbnail := ""
+	if articleDB.Thumbnail.Valid {
+		thumbnail = articleDB.Thumbnail.String
+	}
+
 	authorAvatar := ""
 	if articleDB.AuthorAvatar.Valid {
 		authorAvatar = articleDB.AuthorAvatar.String
@@ -497,10 +521,11 @@ func (r *articlePostgresRepository) dbToArticle(articleDB *articleDB) *domain.Ar
 	}
 
 	return &domain.Article{
-		ID:      articleDB.ID,
-		Title:   articleDB.Title,
-		Excerpt: articleDB.Excerpt,
-		Content: content,
+		ID:        articleDB.ID,
+		Title:     articleDB.Title,
+		Excerpt:   articleDB.Excerpt,
+		Content:   content,
+		Thumbnail: thumbnail,
 		Category: domain.Category{
 			ID:      articleDB.CategoryID,
 			Name:    articleDB.CategoryName,

@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"errors"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -13,6 +14,7 @@ type Article struct {
 	Title       string    `json:"title"`
 	Excerpt     string    `json:"excerpt"`
 	Content     string    `json:"content"`
+	Thumbnail   string    `json:"thumbnail"`
 	Category    Category  `json:"category"`
 	PublishedAt time.Time `json:"publishedAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -95,7 +97,10 @@ type UpdateArticleRequest struct {
 	Title      string   `json:"title,omitempty"`
 	Excerpt    string   `json:"excerpt,omitempty"`
 	Content    string   `json:"content,omitempty"`
+	Thumbnail  string   `json:"thumbnail,omitempty"`
 	CategoryID string   `json:"categoryId,omitempty"`
+	Slug       string   `json:"slug,omitempty"`
+	ReadTime   int      `json:"readTime,omitempty"`
 	Featured   *bool    `json:"featured,omitempty"`
 	Published  *bool    `json:"published,omitempty"`
 	Tags       []string `json:"tags,omitempty"`
@@ -155,6 +160,7 @@ type ArticleUsecase interface {
 	TrackArticleView(ctx context.Context, id string) error
 	TrackArticleLike(ctx context.Context, id string) (int, error)
 	GetArticleStats(ctx context.Context, id string) (*ArticleStats, error)
+	GetDefaultAuthorID(ctx context.Context) (string, error)
 }
 
 type NewsletterUsecase interface {
@@ -180,12 +186,25 @@ func (a *Article) CalculateReadTime() {
 }
 
 func (a *Article) GenerateSlug() {
-	// Simple slug generation - you might want to use a proper library
-	a.Slug = strings.ToLower(
-		strings.ReplaceAll(
-			strings.TrimSpace(a.Title), " ", "-",
-		),
-	)
+	// Convert to lowercase
+	slug := strings.ToLower(strings.TrimSpace(a.Title))
+
+	// Replace spaces with hyphens
+	slug = strings.ReplaceAll(slug, " ", "-")
+
+	// Remove or replace special characters
+	// Keep only alphanumeric characters, hyphens, and underscores
+	reg := regexp.MustCompile("[^a-z0-9-_]+")
+	slug = reg.ReplaceAllString(slug, "")
+
+	// Remove multiple consecutive hyphens
+	reg = regexp.MustCompile("-+")
+	slug = reg.ReplaceAllString(slug, "-")
+
+	// Trim hyphens from start and end
+	slug = strings.Trim(slug, "-")
+
+	a.Slug = slug
 }
 
 func max(a, b int) int {

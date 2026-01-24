@@ -76,20 +76,48 @@ func (h *ArticleHandler) GetArticles(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	category := c.Query("category")
-	featured := c.Query("featured") == "true"
+	featuredQuery := c.Query("featured")
+	publishedQuery := c.Query("published")
+	allQuery := c.Query("all") // For admin to see all articles
+
+	log.Printf("GetArticles called - page: %d, limit: %d, category: %s, all: %s", page, limit, category, allQuery)
 
 	params := domain.ArticleListParams{
 		Page:     page,
 		Limit:    limit,
 		Category: category,
-		Featured: &featured,
+	}
+
+	// Handle featured filter
+	if featuredQuery != "" {
+		featured := featuredQuery == "true"
+		params.Featured = &featured
+	}
+
+	// Handle published filter
+	// If "all=true" is passed (typically from admin), show all articles
+	if allQuery == "true" {
+		// Don't set Published, will show all articles
+		params.Published = nil
+		log.Printf("Admin mode: fetching all articles (published and unpublished)")
+	} else if publishedQuery != "" {
+		// Explicit published filter
+		published := publishedQuery == "true"
+		params.Published = &published
+	} else {
+		// Default: only show published articles for public
+		published := true
+		params.Published = &published
 	}
 
 	result, err := h.articleUsecase.GetArticles(c.Request.Context(), params)
 	if err != nil {
+		log.Printf("Error fetching articles: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	log.Printf("Found %d articles, total: %d", len(result.Articles), result.Total)
 
 	response := ArticleListResponse{
 		Articles:   mapArticlesToResponse(result.Articles),
@@ -165,6 +193,24 @@ func (h *ArticleHandler) GetArticle(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GET /api/admin/articles/:id
+func (h *ArticleHandler) GetArticleByID(c *gin.Context) {
+	id := c.Param("id")
+
+	article, err := h.articleUsecase.GetArticleByID(c.Request.Context(), id)
+	if err != nil {
+		if err == domain.ErrArticleNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	response := mapArticleToResponse(article)
+	c.JSON(http.StatusOK, response)
+}
+
 // POST /api/articles
 func (h *ArticleHandler) CreateArticle(c *gin.Context) {
 	var req domain.CreateArticleRequest
@@ -174,8 +220,13 @@ func (h *ArticleHandler) CreateArticle(c *gin.Context) {
 	}
 
 	// TODO: Get author ID from JWT token
-	// For now, use a default author ID
-	authorID := "default-author-id"
+	// For now, get the first admin user from the database
+	authorID, err := h.articleUsecase.GetDefaultAuthorID(c.Request.Context())
+	if err != nil {
+		log.Printf("Failed to get default author: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get author information"})
+		return
+	}
 
 	article, err := h.articleUsecase.CreateArticle(c.Request.Context(), req, authorID)
 	if err != nil {

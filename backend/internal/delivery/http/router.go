@@ -148,6 +148,13 @@ func NewRouter(
 		admin := api.Group("/admin")
 		admin.Use(middleware.JWTAuthMiddleware())
 		{
+			// Article management
+			admin.GET("/articles", articleHandler.GetArticles)
+			admin.GET("/articles/:id", articleHandler.GetArticleByID)
+			admin.POST("/articles", articleHandler.CreateArticle)
+			admin.PUT("/articles/:id", articleHandler.UpdateArticle)
+			admin.DELETE("/articles/:id", articleHandler.DeleteArticle)
+
 			// User management
 			admin.PUT("/change-password", func(c *gin.Context) {
 				var req struct {
@@ -205,12 +212,6 @@ func NewRouter(
 			admin.POST("/projects", projectHandler.CreateProject)
 			admin.PUT("/projects/:id", projectHandler.UpdateProject)
 			admin.DELETE("/projects/:id", projectHandler.DeleteProject)
-
-			// Article management
-			admin.GET("/articles", articleHandler.GetArticles)
-			admin.POST("/articles", articleHandler.CreateArticle)
-			admin.PUT("/articles/:id", articleHandler.UpdateArticle)
-			admin.DELETE("/articles/:id", articleHandler.DeleteArticle)
 
 			// Categories
 			admin.GET("/categories", articleHandler.GetCategories)
