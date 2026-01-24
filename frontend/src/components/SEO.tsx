@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 
 interface SEOProps {
@@ -10,6 +11,13 @@ interface SEOProps {
   ogImage?: string;
   canonicalUrl?: string;
   noIndex?: boolean;
+  article?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    author?: string;
+    tags?: string[];
+  };
+  structuredData?: any;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -21,90 +29,187 @@ const SEO: React.FC<SEOProps> = ({
   ogImage = '/og-image.jpg',
   canonicalUrl,
   noIndex = false,
+  article,
+  structuredData,
 }) => {
   const location = useLocation();
-  const siteUrl = 'https://asepjumadi.com'; // Update dengan URL production Anda
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://asepjumadi.com';
   const fullUrl = canonicalUrl || `${siteUrl}${location.pathname}`;
+  const fullImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 
-  useEffect(() => {
-    // Update title
-    document.title = title;
+  // Default structured data for Person
+  const defaultStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Asep Jumadi',
+    url: siteUrl,
+    jobTitle: 'Full Stack Developer',
+    description: description,
+    image: fullImageUrl,
+    sameAs: [
+      'https://github.com/asepjumadi',
+      'https://linkedin.com/in/asepjumadi',
+      'https://twitter.com/asepjumadi',
+    ],
+    knowsAbout: [
+      'React.js',
+      'TypeScript',
+      'Go (Golang)',
+      'Node.js',
+      'PostgreSQL',
+      'Full Stack Development',
+      'Web Development',
+      'Software Engineering',
+    ],
+  };
 
-    // Update or create meta tags
-    const updateMetaTag = (name: string, content: string, attribute: 'name' | 'property' = 'name') => {
-      let element = document.querySelector(`meta[${attribute}="${name}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attribute, name);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
-    };
+  const finalStructuredData = structuredData || defaultStructuredData;
 
-    // Standard meta tags
-    updateMetaTag('description', description);
-    updateMetaTag('keywords', keywords);
-    updateMetaTag('author', author);
-
-    // Open Graph meta tags
-    updateMetaTag('og:title', title, 'property');
-    updateMetaTag('og:description', description, 'property');
-    updateMetaTag('og:type', ogType, 'property');
-    updateMetaTag('og:url', fullUrl, 'property');
-    updateMetaTag('og:image', `${siteUrl}${ogImage}`, 'property');
-    updateMetaTag('og:site_name', 'Asep Jumadi Portfolio', 'property');
-
-    // Twitter Card meta tags
-    updateMetaTag('twitter:card', 'summary_large_image');
-    updateMetaTag('twitter:title', title);
-    updateMetaTag('twitter:description', description);
-    updateMetaTag('twitter:image', `${siteUrl}${ogImage}`);
-    updateMetaTag('twitter:creator', '@asepjumadi'); // Update dengan Twitter handle Anda
-
-    // Robots meta tag
-    if (noIndex) {
-      updateMetaTag('robots', 'noindex, nofollow');
-    } else {
-      updateMetaTag('robots', 'index, follow');
-    }
-
-    // Canonical URL
-    let linkCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-    if (!linkCanonical) {
-      linkCanonical = document.createElement('link');
-      linkCanonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(linkCanonical);
-    }
-    linkCanonical.setAttribute('href', fullUrl);
-
-    // Language
-    document.documentElement.lang = 'en';
-
-    // Structured Data (JSON-LD)
-    const structuredData = {
-      '@context': 'https://schema.org',
-      '@type': 'Person',
-      name: 'Asep Jumadi',
-      url: siteUrl,
-      jobTitle: 'Full Stack Developer',
-      description: description,
-      sameAs: [
-        'https://github.com/asepjumadi',
-        'https://linkedin.com/in/asepjumadi',
-        'https://twitter.com/asepjumadi',
-      ],
-    };
-
-    let scriptTag = document.querySelector('script[type="application/ld+json"]');
-    if (!scriptTag) {
-      scriptTag = document.createElement('script');
-      scriptTag.setAttribute('type', 'application/ld+json');
-      document.head.appendChild(scriptTag);
-    }
-    scriptTag.textContent = JSON.stringify(structuredData);
-  }, [title, description, keywords, author, ogType, ogImage, fullUrl, noIndex]);
-
-  return null;
+  return (
+    <Helmet>
+      {/* Basic Meta Tags */}
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="author" content={author} />
+      
+      {/* Robots */}
+      <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+      <meta name="googlebot" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
+      
+      {/* Canonical URL */}
+      <link rel="canonical" href={fullUrl} />
+      
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={ogType} />
+      <meta property="og:url" content={fullUrl} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={fullImageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:site_name" content="Asep Jumadi Portfolio" />
+      <meta property="og:locale" content="en_US" />
+      <meta property="og:locale:alternate" content="id_ID" />
+      
+      {/* Article specific Open Graph tags */}
+      {article && (
+        <>
+          {article.publishedTime && (
+            <meta property="article:published_time" content={article.publishedTime} />
+          )}
+          {article.modifiedTime && (
+            <meta property="article:modified_time" content={article.modifiedTime} />
+          )}
+          {article.author && (
+            <meta property="article:author" content={article.author} />
+          )}
+          {article.tags?.map((tag, index) => (
+            <meta key={index} property="article:tag" content={tag} />
+          ))}
+        </>
+      )}
+      
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={fullUrl} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={fullImageUrl} />
+      <meta name="twitter:creator" content="@asepjumadi" />
+      <meta name="twitter:site" content="@asepjumadi" />
+      
+      {/* Additional SEO tags */}
+      <meta name="format-detection" content="telephone=no" />
+      <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+      
+      {/* Language */}
+      <html lang="en" />
+      
+      {/* Structured Data (JSON-LD) */}
+      <script type="application/ld+json">
+        {JSON.stringify(finalStructuredData)}
+      </script>
+    </Helmet>
+  );
 };
+
+// Helper function to create Article structured data
+export const createArticleStructuredData = (article: {
+  title: string;
+  description: string;
+  image: string;
+  datePublished: string;
+  dateModified?: string;
+  author: string;
+  url: string;
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.title,
+  description: article.description,
+  image: article.image,
+  datePublished: article.datePublished,
+  dateModified: article.dateModified || article.datePublished,
+  author: {
+    '@type': 'Person',
+    name: article.author,
+    url: 'https://asepjumadi.com',
+  },
+  publisher: {
+    '@type': 'Person',
+    name: 'Asep Jumadi',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://asepjumadi.com/logo.png',
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': article.url,
+  },
+});
+
+// Helper function to create Course structured data
+export const createCourseStructuredData = (course: {
+  title: string;
+  description: string;
+  image: string;
+  provider: string;
+  url: string;
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: course.title,
+  description: course.description,
+  image: course.image,
+  provider: {
+    '@type': 'Person',
+    name: course.provider,
+  },
+  url: course.url,
+});
+
+// Helper function to create Project/CreativeWork structured data
+export const createProjectStructuredData = (project: {
+  title: string;
+  description: string;
+  image: string;
+  author: string;
+  url: string;
+  technologies: string[];
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.title,
+  description: project.description,
+  image: project.image,
+  author: {
+    '@type': 'Person',
+    name: project.author,
+  },
+  url: project.url,
+  keywords: project.technologies.join(', '),
+});
 
 export default SEO;
