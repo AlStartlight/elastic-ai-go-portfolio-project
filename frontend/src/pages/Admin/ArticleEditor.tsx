@@ -57,18 +57,22 @@ const ArticleEditor: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      console.log('Fetching article with ID:', articleId);
+      
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/articles/${articleId}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/articles/${articleId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
+      console.log('Article data received:', response.data);
       const article = response.data;
+      
       setFormData({
         title: article.title || '',
         excerpt: article.excerpt || '',
-        categoryId: article.categoryId || '',
+        categoryId: article.category?.id || '',
         featured: article.featured || false,
         published: article.published || false,
         tags: article.tags || [],
@@ -80,14 +84,16 @@ const ArticleEditor: React.FC = () => {
           const parsedContent = typeof article.content === 'string' 
             ? JSON.parse(article.content) 
             : article.content;
+          console.log('Parsed content:', parsedContent);
           setEditorData(parsedContent);
         } catch (error) {
           console.error('Error parsing article content:', error);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch article:', error);
-      toast.error('Failed to load article');
+      console.error('Error response:', error.response?.data);
+      toast.error('Failed to load article: ' + (error.response?.data?.error || error.message));
       navigate('/admin/articles');
     } finally {
       setLoading(false);
@@ -142,9 +148,23 @@ const ArticleEditor: React.FC = () => {
       setSaving(true);
       const token = localStorage.getItem('token');
       
+      // Extract first image from EditorJS blocks for thumbnail
+      const extractFirstImage = (): string => {
+        if (!editorData || !editorData.blocks) return '';
+        
+        for (const block of editorData.blocks) {
+          if (block.type === 'image' && block.data) {
+            // Check for image URL in various formats
+            return block.data.file?.url || block.data.url || '';
+          }
+        }
+        return '';
+      };
+      
       const payload = {
         ...formData,
-        content: JSON.stringify(editorData)
+        content: JSON.stringify(editorData),
+        thumbnail: extractFirstImage()
       };
 
       if (isEditMode && id) {
@@ -368,7 +388,16 @@ const ArticleEditor: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={formData.published}
-                        onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                        onChange={(e) => {
+                          const newValue = e.target.checked;
+                          // Warn if unpublishing an existing article
+                          if (!newValue && isEditMode && formData.published) {
+                            if (!confirm('Are you sure you want to unpublish this article? It will no longer be visible to the public.')) {
+                              return;
+                            }
+                          }
+                          setFormData({ ...formData, published: newValue });
+                        }}
                         className="w-5 h-5 rounded-md border-2 border-gray-600 bg-gray-900 checked:bg-gradient-to-br checked:from-green-500 checked:to-emerald-600 checked:border-green-500 focus:ring-2 focus:ring-green-500 focus:ring-offset-0 transition-all duration-200 cursor-pointer"
                       />
                       <svg className="w-3 h-3 text-white absolute top-1 left-1 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -376,8 +405,12 @@ const ArticleEditor: React.FC = () => {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <span className="text-sm font-medium text-gray-300 group-hover/checkbox:text-green-400 transition-colors">Publish Now</span>
-                      <p className="text-xs text-gray-500">Make article public</p>
+                      <span className="text-sm font-medium text-gray-300 group-hover/checkbox:text-green-400 transition-colors">
+                        {formData.published ? '✓ Published' : 'Publish Now'}
+                      </span>
+                      <p className="text-xs text-gray-500">
+                        {formData.published ? 'Article is visible to public' : 'Make article public'}
+                      </p>
                     </div>
                   </label>
                 </div>

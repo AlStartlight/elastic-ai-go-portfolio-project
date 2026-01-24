@@ -280,9 +280,13 @@ class CloudinaryImageTool {
         } else {
           modalBody.innerHTML = `
             <div class="gallery-grid">
-              ${images.map((img: CloudinaryImage, index: number) => `
-                <button class="gallery-item" data-index="${index}" data-url="${img.secureUrl}" data-name="${img.publicId.split('/').pop()}">
-                  <img src="${img.secureUrl}" alt="${img.publicId}" loading="lazy" />
+              ${images.map((img: CloudinaryImage, index: number) => {
+                const imageName = img.publicId ? (img.publicId.split('/').pop() || img.publicId) : `image-${index}`;
+                const imageUrl = img.secureUrl || img.url;
+                const imageAlt = img.publicId || `image-${index}`;
+                return `
+                <button class="gallery-item" data-index="${index}" data-url="${imageUrl}" data-name="${imageName}">
+                  <img src="${imageUrl}" alt="${imageAlt}" loading="lazy" />
                   <div class="gallery-item-overlay">
                     <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -290,11 +294,12 @@ class CloudinaryImageTool {
                     <p>Click to Insert</p>
                   </div>
                   <div class="gallery-item-info">
-                    <p class="gallery-item-name">${img.publicId.split('/').pop()}</p>
+                    <p class="gallery-item-name">${imageName}</p>
                     <p class="gallery-item-size">${img.width} × ${img.height}</p>
                   </div>
                 </button>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           `;
 

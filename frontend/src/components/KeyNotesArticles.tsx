@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { articleApi } from '../services/api-service';
 import { Article } from '../types/article';
 
@@ -82,10 +83,23 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {articles.map((article) => (
-            <article
+            <Link
               key={article.id}
-              className="group relative bg-gray-800/40 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-700/50 shadow-2xl transition-all duration-500 hover:scale-105 hover:shadow-3xl hover:shadow-green-500/10 cursor-pointer"
+              to={`/articles/${article.slug}`}
+              className="group relative bg-gray-800/40 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-700/50 shadow-2xl transition-all duration-500 hover:scale-105 hover:shadow-3xl hover:shadow-green-500/10 cursor-pointer block"
             >
+              {/* Thumbnail Image */}
+              {article.thumbnail && (
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={article.thumbnail} 
+                    alt={article.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                </div>
+              )}
+              
               {/* Article Header */}
               <div className="p-6">
                 {/* Category Badge */}
@@ -187,7 +201,7 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
 
               {/* Hover Effect Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-green-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            </article>
+            </Link>
           ))}
         </div>
 

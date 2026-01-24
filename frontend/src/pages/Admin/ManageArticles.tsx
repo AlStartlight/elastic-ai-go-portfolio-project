@@ -44,15 +44,49 @@ const ManageArticles: React.FC = () => {
   const fetchArticles = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/articles`, {
+      console.log('=== FETCHING ARTICLES ===');
+      console.log('Token:', token ? 'Token exists' : 'No token');
+      console.log('API URL:', import.meta.env.VITE_API_URL);
+      console.log('Full URL:', `${import.meta.env.VITE_API_URL}/api/admin/articles?all=true`);
+      
+      // Add ?all=true to get all articles including unpublished ones
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/articles?all=true`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setArticles(response.data.articles || []);
-    } catch (error) {
-      console.error('Failed to fetch articles:', error);
+      
+      console.log('=== RESPONSE RECEIVED ===');
+      console.log('Full response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response status:', response.status);
+      
+      const articlesData = response.data.articles || [];
+      console.log('=== ARTICLES DATA ===');
+      console.log('Articles array:', articlesData);
+      console.log('Number of articles:', articlesData.length);
+      console.log('Total from API:', response.data.total);
+      console.log('Page:', response.data.page);
+      console.log('Total Pages:', response.data.totalPages);
+      
+      if (articlesData.length > 0) {
+        console.log('First article:', articlesData[0]);
+        console.log('All article titles:', articlesData.map((a: any) => a.title));
+      } else {
+        console.warn('⚠️ NO ARTICLES FOUND!');
+      }
+      
+      setArticles(articlesData);
+      console.log('=== STATE UPDATED ===');
+      console.log('Articles state set with', articlesData.length, 'articles');
+    } catch (error: any) {
+      console.error('=== ERROR FETCHING ARTICLES ===');
+      console.error('Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       toast.error('Failed to load articles');
     } finally {
       setLoading(false);
+      console.log('=== FETCH COMPLETE ===');
     }
   };
 

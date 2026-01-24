@@ -91,10 +91,19 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
       return;
     }
 
+    // Extract first image URL from content for thumbnail
+    const extractFirstImage = (content: string): string => {
+      // Match markdown images: ![alt](url)
+      const markdownImageRegex = /!\[.*?\]\((https?:\/\/[^\)]+)\)/;
+      const match = content.match(markdownImageRegex);
+      return match ? match[1] : '';
+    };
+
     const submitData = {
       title: formData.title.trim(),
       excerpt: formData.excerpt.trim(),
       content: formData.content.trim(),
+      thumbnail: extractFirstImage(formData.content.trim()),
       categoryId: formData.categoryId,
       featured: formData.featured,
       published: formData.published,
@@ -224,15 +233,49 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
     setLoadingGallery(true);
     try {
       const response = await articleApi.listImages(100);
-      console.log('Cloudinary response:', response);
+      console.log('Cloudinary API response:', response);
+      console.log('Response type:', typeof response);
+      console.log('Response keys:', response ? Object.keys(response) : 'null');
       
       // Handle both formats: { images: [], total: N } or { data: [] }
-      const images = response.images || (response as any).data || [];
-      setCloudinaryImages(images);
+      let images = [];
+      if (response && response.images && Array.isArray(response.images)) {
+        images = response.images;
+      } else if (response && (response as any).data && Array.isArray((response as any).data)) {
+        images = (response as any).data;
+      } else if (Array.isArray(response)) {
+        images = response;
+      }
+      
+      console.log('Parsed images array:', images);
+      console.log('Total images found:', images.length);
+      
+      // Validate image objects have required fields
+      const validImages = images.filter((img: any) => {
+        const isValid = img && (img.url || img.secureUrl);
+        if (!isValid) {
+          console.warn('Invalid image object:', img);
+        }
+        return isValid;
+      });
+      
+      console.log('Valid images after filtering:', validImages.length);
+      
+      setCloudinaryImages(validImages);
       setShowCloudinaryGallery(true);
-    } catch (error) {
+      
+      if (validImages.length === 0) {
+        console.warn('No valid images found in Cloudinary. Upload some images first.');
+      }
+    } catch (error: any) {
       console.error('Error loading Cloudinary images:', error);
-      alert('Failed to load images from Cloudinary. Please make sure Cloudinary is configured.');
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      alert(`Failed to load images from Cloudinary.\n\nError: ${errorMessage}\n\nPlease check your authentication and Cloudinary configuration`);
     } finally {
       setLoadingGallery(false);
     }
@@ -604,15 +647,17 @@ Try pasting an image or dragging one here!"
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {cloudinaryImages.map((image, index) => (
+                    {cloudinaryImages.map((image, index) => {
+                      const imageName = image.publicId ? (image.publicId.split('/').pop() || image.publicId) : `image-${index}`;
+                      return (
                       <button
                         key={index}
-                        onClick={() => insertCloudinaryImage(image.secureUrl, image.publicId.split('/').pop() || 'image')}
+                        onClick={() => insertCloudinaryImage(image.secureUrl || image.url, imageName)}
                         className="group relative aspect-square rounded-lg overflow-hidden bg-gray-900 border-2 border-gray-700 hover:border-green-500 transition-all duration-300 transform hover:scale-105"
                       >
                         <img
                           src={image.secureUrl}
-                          alt={image.publicId}
+                          alt={image.publicId || 'Gallery image'}
                           className="w-full h-full object-cover"
                           loading="lazy"
                         />
@@ -625,11 +670,12 @@ Try pasting an image or dragging one here!"
                           </div>
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                          <p className="text-white text-xs truncate">{image.publicId.split('/').pop()}</p>
+                          <p className="text-white text-xs truncate">{imageName}</p>
                           <p className="text-gray-400 text-xs">{image.width} × {image.height}</p>
                         </div>
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

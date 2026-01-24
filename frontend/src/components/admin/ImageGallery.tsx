@@ -99,6 +99,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ onSelectImage, selectedImag
       {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-4">
         <button
+          type="button"
           onClick={() => setActiveTab('gallery')}
           className={`px-4 py-2 font-medium text-sm transition-colors ${
             activeTab === 'gallery'
@@ -112,6 +113,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ onSelectImage, selectedImag
           </div>
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('upload')}
           className={`px-4 py-2 font-medium text-sm transition-colors ${
             activeTab === 'upload'
@@ -150,6 +152,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ onSelectImage, selectedImag
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-96 overflow-y-auto">
               {images.map((image) => (
                 <button
+                  type="button"
                   key={image.public_id}
                   onClick={() => onSelectImage(image.secure_url)}
                   className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${

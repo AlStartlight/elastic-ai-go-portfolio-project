@@ -33,9 +33,24 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
     >
       {/* Header Image/Design */}
       <div className="relative overflow-hidden">
-        <div className="bg-gradient-to-br from-green-600 to-emerald-700 aspect-[16/9] p-8 flex items-center justify-center relative">
-          {/* Article Preview Mockup */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 w-full max-w-md shadow-2xl transform group-hover:scale-105 transition-transform duration-500">
+        <div className="relative aspect-[16/9] overflow-hidden">
+          {article.thumbnail ? (
+            <>
+              <img 
+                src={article.thumbnail} 
+                alt={article.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-gray-900/20"></div>
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-emerald-700"></div>
+          )}
+          
+          {/* Content overlay */}
+          <div className="absolute inset-0 p-8 flex items-center justify-center">
+            {/* Article Preview Mockup */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 w-full max-w-md shadow-2xl transform group-hover:scale-105 transition-transform duration-500">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -75,6 +90,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-sm">
               Share
             </button>
+          </div>
           </div>
         </div>
       </div>
