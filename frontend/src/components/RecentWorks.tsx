@@ -92,7 +92,7 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
   }
 
   return (
-    <section className="mt-32 relative">
+    <section className="mt-20 sm:mt-24 lg:mt-32 relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="w-full h-full bg-repeat bg-center" style={{
@@ -102,19 +102,19 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
 
       <div className="relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+        <div className="text-center mb-12 sm:mb-16 px-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
             My recent <span className="text-green-500">works</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-green-400 mx-auto rounded-full mb-8"></div>
           
           {/* Filter Tabs */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mb-8 sm:mb-12 px-4">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${
+                className={`px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 text-sm sm:text-base min-h-[44px] flex items-center justify-center ${
                   selectedCategory === category
                     ? 'bg-green-500 text-white shadow-lg'
                     : 'bg-gray-800/50 backdrop-blur-sm text-gray-300 hover:bg-gray-700/50 hover:text-white border border-gray-700'
@@ -127,7 +127,7 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto px-4">
           {filteredProjects.map((project) => (
             <div
               key={project.id}
@@ -148,14 +148,14 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute bottom-4 left-4 right-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
                   <div className="flex gap-2">
                     {project.projectUrl && (
                       <a
                         href={ensureHttpProtocol(project.projectUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300"
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-sm min-h-[40px] flex items-center justify-center flex-1"
                       >
                         View Live
                       </a>
@@ -165,7 +165,7 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
                         href={ensureHttpProtocol(project.githubUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300"
+                        className="bg-gray-700 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-sm min-h-[40px] flex items-center justify-center flex-1"
                       >
                         Code
                       </a>
@@ -173,9 +173,9 @@ const RecentWorks: React.FC<RecentWorksProps> = ({ limit = 6 }) => {
                   </div>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-bold text-white">{project.title}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-white">{project.title}</h3>
                   {project.featured && (
                     <span className="bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full text-xs font-medium">
                       Featured

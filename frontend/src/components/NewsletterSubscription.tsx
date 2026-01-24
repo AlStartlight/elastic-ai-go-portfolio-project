@@ -46,21 +46,21 @@ const NewsletterSubscription: React.FC<NewsletterSubscriptionProps> = ({
   };
 
   return (
-    <div className={`bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 backdrop-blur-lg p-8 rounded-2xl border border-green-500/30 shadow-2xl max-w-4xl mx-auto ${className}`}>
+    <div className={`bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 backdrop-blur-lg p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl border border-green-500/30 shadow-2xl max-w-4xl mx-auto ${className}`}>
       <div className="text-center">
         {/* Header */}
-        <div className="mb-6">
-          <h3 className="text-2xl font-bold text-white mb-4">
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
             Stay Updated with My Latest Articles
           </h3>
-          <p className="text-gray-300 text-lg">
+          <p className="text-gray-300 text-base sm:text-lg px-4">
             Get notified when I publish new insights about development, technology, and best practices.
           </p>
         </div>
 
         {/* Subscription Form */}
-        <form onSubmit={handleSubmit} className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+        <form onSubmit={handleSubmit} className="mb-4 sm:mb-6 px-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto">
             <div className="flex-1">
               <input
                 type="email"
@@ -68,14 +68,14 @@ const NewsletterSubscription: React.FC<NewsletterSubscriptionProps> = ({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 disabled={isSubmitting || isLoading}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[48px]"
                 required
               />
             </div>
             <button 
               type="submit"
               disabled={isSubmitting || isLoading || !email}
-              className="bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 disabled:transform-none disabled:shadow-none flex items-center justify-center gap-2"
+              className="bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 disabled:transform-none disabled:shadow-none flex items-center justify-center gap-2 text-sm sm:text-base min-h-[48px] w-full sm:w-auto"
             >
               {isSubmitting || isLoading ? (
                 <>

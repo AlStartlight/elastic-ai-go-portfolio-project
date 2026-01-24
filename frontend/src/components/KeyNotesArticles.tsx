@@ -63,25 +63,25 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
   }
 
   return (
-    <section className="mt-32 relative">
+    <section className="mt-20 sm:mt-24 lg:mt-32 relative">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
 
       <div className="relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+        <div className="text-center mb-12 sm:mb-16 px-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
             My Key Notes <span className="text-green-500">Articles</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-green-400 mx-auto rounded-full mb-4"></div>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto px-4">
             Insights, tutorials, and thoughts on software development
           </p>
         </div>
 
         {/* Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto px-4">
           {articles.map((article) => (
             <Link
               key={article.id}
@@ -90,7 +90,7 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
             >
               {/* Thumbnail Image */}
               {article.thumbnail && (
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-40 sm:h-48 overflow-hidden">
                   <img 
                     src={article.thumbnail} 
                     alt={article.title}
@@ -101,11 +101,11 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
               )}
               
               {/* Article Header */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {/* Category Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${article.category.bgColor} ${article.category.color}`}>
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center justify-between mb-3 sm:mb-4 flex-wrap gap-2">
+                  <span className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold ${article.category.bgColor} ${article.category.color}`}>
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
                     </svg>
                     {article.category.name}
@@ -118,17 +118,17 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors duration-300">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 group-hover:text-green-400 transition-colors duration-300 line-clamp-2">
                   {article.title}
                 </h3>
 
                 {/* Excerpt */}
-                <p className="text-gray-400 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-400 text-sm mb-3 sm:mb-4 line-clamp-3">
                   {article.excerpt}
                 </p>
 
                 {/* Meta Info */}
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <div className="flex flex-wrap items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 gap-2">
                   <div className="flex items-center gap-4">
                     <span className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -170,8 +170,8 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
                 )}
 
                 {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-gray-700/50">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                <div className="flex items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-700/50">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {article.author?.avatar ? (
                       <img 
                         src={article.author.avatar} 
@@ -189,8 +189,8 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
                 </div>
 
                 {/* Read More Button */}
-                <div className="mt-6">
-                  <button className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform group-hover:scale-105 flex items-center justify-center gap-2">
+                <div className="mt-4 sm:mt-6">
+                  <button className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg transition-all duration-300 transform group-hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px]">
                     Read Article
                     <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -213,8 +213,8 @@ const KeyNotesArticles: React.FC<KeyNotesArticlesProps> = ({ limit = 3 }) => {
 
         {/* View All Button */}
         {articles.length > 0 && (
-          <div className="text-center mt-12">
-            <button className="bg-gray-800/50 hover:bg-gray-700/50 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 border border-gray-700 hover:border-green-500 hover:text-green-400">
+          <div className="text-center mt-8 sm:mt-12 px-4">
+            <button className="bg-gray-800/50 hover:bg-gray-700/50 text-white font-semibold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 border border-gray-700 hover:border-green-500 hover:text-green-400 text-sm sm:text-base min-h-[44px]">
               View All Articles
             </button>
           </div>

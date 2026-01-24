@@ -41,12 +41,12 @@ const Home: React.FC = () => {
         ogType="website"
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="container mx-auto px-4 py-16 max-w-7xl">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16 max-w-7xl">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
           {/* Dynamic Text Content */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="space-y-4">
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
+          <div className="flex-1 text-center lg:text-left w-full">
+            <div className="space-y-4 sm:space-y-6">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight">
                 {heroContent?.title ? (
                   heroContent.title.split('\n').map((line, i) => (
                     <span 
@@ -111,8 +111,8 @@ const Home: React.FC = () => {
         </div>
 
         {/* Dynamic Tech Stacks Section */}
-        <div className="mt-20 text-center">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+        <div className="mt-12 sm:mt-16 lg:mt-20 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
             {!stacksLoading && stacks.length > 0 ? (
               stacks.map((stack) => (
                 <div 
@@ -169,7 +169,7 @@ const Home: React.FC = () => {
               {/* Text Content */}
               <div className="flex-1 space-y-8">
                 {/* Introduction */}
-                <div className="bg-gray-800/40 backdrop-blur-lg p-8 rounded-2xl border border-gray-700/50 shadow-2xl transform transition-all duration-700 hover:scale-105 hover:bg-gray-800/60">
+                <div className="bg-gray-800/40 backdrop-blur-lg p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl border border-gray-700/50 shadow-2xl transform transition-all duration-700 hover:scale-105 hover:bg-gray-800/60">
                   <div className="flex items-start gap-4">
                     <div className="w-2 h-16 bg-gradient-to-b from-green-500 to-green-400 rounded-full flex-shrink-0 mt-2"></div>
                     <div>
@@ -209,8 +209,8 @@ const Home: React.FC = () => {
                         If you're looking for a dedicated developer who values meaningful relationships and relentless progress, 
                         let's connect and create something impactful together.
                       </p>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 sm:py-3 px-5 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 text-sm sm:text-base">
                           Let's Connect
                         </button>
                         <button className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300">
@@ -223,19 +223,19 @@ const Home: React.FC = () => {
               </div>
 
               {/* Image Content */}
-              <div className="flex-1 flex justify-center">
-                <div className="relative group">
+              <div className="flex-1 flex justify-center w-full lg:w-auto">
+                <div className="relative group w-full max-w-md lg:max-w-lg">
                   {/* Floating animation container */}
                   <div className="relative transform transition-transform duration-1000 hover:scale-105">
                     {/* Background glow effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-green-500/30 to-blue-500/30 rounded-3xl blur-2xl transform rotate-6 group-hover:rotate-12 transition-transform duration-700"></div>
                     
                     {/* Main image container */}
-                    <div className="relative bg-gray-800/50 backdrop-blur-sm p-6 rounded-3xl border border-gray-700/50 shadow-2xl">
+                    <div className="relative bg-gray-800/50 backdrop-blur-sm p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-700/50 shadow-2xl">
                       <img 
                         src="aboutme.png" 
                         alt="About Asep Jumadi - Full Stack Developer" 
-                        className="w-full max-w-lg rounded-2xl shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
+                        className="w-full rounded-xl sm:rounded-2xl shadow-2xl transform transition-transform duration-500 group-hover:scale-105"
                       />
                       
                       {/* Floating badges */}
