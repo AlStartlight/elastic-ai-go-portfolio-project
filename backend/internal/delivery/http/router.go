@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"portfolio/internal/delivery/http/middleware"
 	"portfolio/internal/domain/user"
@@ -26,6 +27,7 @@ func NewRouter(
 	db *sql.DB,
 ) *gin.Engine {
 	router := gin.Default()
+	router.Use(middleware.MetricsMiddleware())
 
 	// CORS configuration
 	config := cors.DefaultConfig()
@@ -41,6 +43,9 @@ func NewRouter(
 			"message": "Server is running",
 		})
 	})
+
+	// Prometheus metrics
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api")

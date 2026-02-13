@@ -1,0 +1,38 @@
+# Ignore compiled binaries
+server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore test binaries
+*.test
+
+# Ignore output from coverage tools
+*.out
+*.prof
+
+# Ignore log files
+*.log
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+tmp/
+temp/
+uploads/
+
+# Ignore migration files (already in image)
+# migrations/
+
+# Keep go.mod and go.sum
+!go.mod
+!go.sum
